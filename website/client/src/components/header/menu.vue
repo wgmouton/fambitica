@@ -315,25 +315,6 @@
               >
                 {{ $t('overview') }}
               </router-link>
-              <a
-                class="topbar-dropdown-item dropdown-item"
-                target="_blank"
-                @click.prevent="openBugReportModal()"
-              >
-                {{ $t('reportBug') }}
-              </a>
-              <a
-                class="topbar-dropdown-item dropdown-item"
-                target="_blank"
-                @click.prevent="openBugReportModal(true)"
-              >
-                {{ $t('askQuestion') }}
-              </a>
-              <a
-                class="topbar-dropdown-item dropdown-item"
-                href="https://docs.google.com/forms/d/e/1FAIpQLScPhrwq_7P1C6PTrI3lbvTsvqGyTNnGzp1ugi1Ml0PFee_p5g/viewform?usp=sf_link"
-                target="_blank"
-              >{{ $t('requestFeature') }}</a>
             </div>
           </li>
         </b-navbar-nav>
@@ -737,6 +718,8 @@ body.modal-open #habitica-menu {
 </style>
 
 <script>
+import getItemInfo from '@/../../common/script/libs/getItemInfo';
+
 import { mapState, mapGetters } from '@/libs/store';
 import { goToModForm } from '@/libs/modform';
 
@@ -839,7 +822,7 @@ export default {
       this.$root.$emit('bv::show::modal', 'create-party-modal');
     },
     showBuyGemsModal () {
-      this.$root.$emit('bv::show::modal', 'buy-gems', { alreadyTracked: true });
+      this.$root.$emit('buyModal::showItem', getItemInfo(this.user, 'gem'));
     },
     dropdownDesktop (hover) {
       if (this.isDesktop() && hover.target.classList.contains('droppable')) {
