@@ -652,7 +652,7 @@ export default {
       this.quickAddText = '';
       this.quickAddRows = 1;
       if (this.group) {
-        await this.createGroupTasks({ groupId: this.group._id, tasks });
+        await this.createGroupTasks({ groupId: this.group.id, tasks });
         this.sync();
       } else {
         this.createTask(tasks);
