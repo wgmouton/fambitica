@@ -888,6 +888,9 @@ api.deleteChallenge = {
     // Close channel in background, some ops are run in the background without `await`ing
     await challenge.closeChal({ broken: 'CHALLENGE_DELETED' });
 
+    // Deletes tasks linked to challenge
+    await Tasks.Task.deleteMany({ 'challenge.id': challenge._id }).exec();
+    
     res.analytics.track('challenge delete', {
       uuid: user._id,
       hitType: 'event',

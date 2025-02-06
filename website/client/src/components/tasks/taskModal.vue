@@ -72,6 +72,22 @@
           :placeholder="$t('addATitle')"
         >
       </div>
+      <div class="form-group">
+        <lockable-label
+          :class-override="cssClass('headings')"
+          :locked="challengeAccessRequired"
+          text="Image"
+        />
+        <input
+          ref="inputToFocus"
+          v-model="task.image"
+          class="form-control input-image"
+          :class="cssClass('input')"
+          type="text"
+          spellcheck="true"
+          placeholder="Image URL"
+        >
+      </div>
       <div
         class="form-group mb-0"
       >
