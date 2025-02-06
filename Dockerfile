@@ -21,7 +21,7 @@ COPY . /usr/src/habitica
 
 # Create configuration file (some values are needed for the client build already)
 RUN echo '{\n\
-    "BASE_URL": "http://localhost:3000",\n\
+    "BASE_URL": "http://0.0.0.0:3000",\n\
     "CRON_SAFE_MODE": "false",\n\
     "CRON_SEMI_SAFE_MODE": "false",\n\
     "DISABLE_REQUEST_LOGGING": "true",\n\
@@ -87,25 +87,25 @@ CMD sh -c 'printenv | grep -v "no_proxy" >> /etc/environment && /etc/init.d/cron
 
 
 # Container for providing the build web component of Habitica
-FROM caddy AS client
+# FROM caddy AS client
 
-COPY --from=build /usr/src/habitica/website/client/dist /var/www
+# COPY --from=build /usr/src/habitica/website/client/dist /var/www
 
-RUN echo -e ":80 {\n\
-	@backend not {\n\
-		path /static/audio/\n\
-		path /static/css/\n\
-		path /static/emails/\n\
-		path /static/icons/\n\
-		path /static/img/\n\
-		path /static/js/\n\
-		path /static/merch/\n\
-		path /static/npc/\n\
-		path /static/presskit/\n\
-		path /index.html\n\
-	}\n\
-\n\
-	root * /var/www\n\
-	reverse_proxy @backend server:3000\n\
-	file_server\n\
-}" > /etc/caddy/Caddyfile
+# RUN echo -e ":80 {\n\
+# 	@backend not {\n\
+# 		path /static/audio/\n\
+# 		path /static/css/\n\
+# 		path /static/emails/\n\
+# 		path /static/icons/\n\
+# 		path /static/img/\n\
+# 		path /static/js/\n\
+# 		path /static/merch/\n\
+# 		path /static/npc/\n\
+# 		path /static/presskit/\n\
+# 		path /index.html\n\
+# 	}\n\
+# \n\
+# 	root * /var/www\n\
+# 	reverse_proxy @backend server:3000\n\
+# 	file_server\n\
+# }" > /etc/caddy/Caddyfile

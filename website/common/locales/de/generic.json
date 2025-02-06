@@ -25,7 +25,7 @@
     "user": "Benutzer",
     "market": "Marktplatz",
     "newSubscriberItem": "Du hast einen neuen <span class=\"notification-bold-blue\">Überraschungsgegenstand</span>",
-    "subscriberItemText": "Abonnenten bekommen jeden Monat einen Überraschungsgegenstand. Er wird Anfang des Monats verfügbar. Schaue auf der 'Überraschungsgegenstand'-Seite des Wikis für mehr Informationen nach.",
+    "subscriberItemText": "Abonnenten bekommen jeden Monatsanfang ein neues Überraschungsausrüstungsset!",
     "all": "Alle",
     "none": "Keine",
     "more": "<%= count %> mehr",

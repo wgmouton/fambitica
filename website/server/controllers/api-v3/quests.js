@@ -42,22 +42,9 @@ function canStartQuestAutomatically (group) {
 
 const api = {};
 
-/**
- * @api {post} /api/v3/groups/:groupId/quests/invite/:questKey Invite users to a quest
- * @apiName InviteToQuest
- * @apiGroup Quest
- *
- * @apiParam (Path) {String} groupId The group _id (or 'party')
- * @apiParam (Path) {String} questKey
- *
- * @apiSuccess {Object} data Quest object
- *
- * @apiUse GroupNotFound
- * @apiUse QuestNotFound
- */
 api.inviteToQuest = {
   method: 'POST',
-  url: '/groups/:groupId/quests/invite/:questKey',
+  url: '/groups/:groupId/quests/create',
   middlewares: [authWithHeaders()],
   async handler (req, res) {
     const { user } = res.locals;
@@ -85,13 +72,13 @@ api.inviteToQuest = {
       .exec();
 
     group.markModified('quest');
-    group.quest.key = questKey;
+    group.quest.details = quest;
     group.quest.leader = user._id;
     group.quest.members = {};
     group.quest.members[user._id] = true;
 
     user.party.quest.RSVPNeeded = false;
-    user.party.quest.key = questKey;
+    user.party.quest.details = quest;
 
     await User.updateMany({
       'party._id': group._id,
@@ -99,7 +86,7 @@ api.inviteToQuest = {
     }, {
       $set: {
         'party.quest.RSVPNeeded': true,
-        'party.quest.key': questKey,
+        'party.quest.details': quest,
       },
     }).exec();
 
@@ -162,7 +149,134 @@ api.inviteToQuest = {
       owner: true,
       response: 'accept',
       gaLabel: 'accept',
-      questName: questKey,
+      questName: quest.name,
+      uuid: user._id,
+      headers: req.headers,
+    });
+  },
+};
+
+/**
+ * @api {post} /api/v3/groups/:groupId/quests/invite/:questKey Invite users to a quest
+ * @apiName InviteToQuest
+ * @apiGroup Quest
+ *
+ * @apiParam (Path) {String} groupId The group _id (or 'party')
+ * @apiParam (Path) {String} questKey
+ *
+ * @apiSuccess {Object} data Quest object
+ *
+ * @apiUse GroupNotFound
+ * @apiUse QuestNotFound
+ */
+api.inviteToQuest = {
+  method: 'POST',
+  url: '/groups/:groupId/quests/invite/:questKey',
+  middlewares: [authWithHeaders()],
+  async handler (req, res) {
+    const { user } = res.locals;
+    const { questKey } = req.params;
+    const quest = questScrolls[questKey];
+
+    req.checkParams('groupId', apiError('groupIdRequired')).notEmpty();
+
+    const validationErrors = req.validationErrors();
+    if (validationErrors) throw validationErrors;
+
+    const group = await Group.getGroup({ user, groupId: req.params.groupId, fields: basicGroupFields.concat(' quest chat') });
+
+    if (!group) throw new NotFound(res.t('groupNotFound'));
+    if (group.type !== 'party') throw new NotAuthorized(res.t('guildQuestsNotSupported'));
+    if (!quest) throw new NotFound(apiError('questNotFound', { key: questKey }));
+    if (!user.items.quests[questKey]) throw new NotAuthorized(res.t('questNotOwned'));
+    if (group.quest.key) throw new NotAuthorized(res.t('questAlreadyUnderway'));
+
+    const members = await User.find({
+      'party._id': group._id,
+      _id: { $ne: user._id },
+    })
+      .select('auth preferences.emailNotifications preferences.pushNotifications preferences.language profile.name pushDevices webhooks')
+      .exec();
+
+    group.markModified('quest');
+    group.quest.details = quest;
+    group.quest.leader = user._id;
+    group.quest.members = {};
+    group.quest.members[user._id] = true;
+
+    user.party.quest.RSVPNeeded = false;
+    user.party.quest.details = quest;
+
+    await User.updateMany({
+      'party._id': group._id,
+      _id: { $ne: user._id },
+    }, {
+      $set: {
+        'party.quest.RSVPNeeded': true,
+        'party.quest.details': quest,
+      },
+    }).exec();
+
+    _.each(members, member => {
+      group.quest.members[member._id] = null;
+    });
+
+    if (canStartQuestAutomatically(group)) {
+      await group.startQuest(user);
+    }
+
+    const [savedGroup] = await Promise.all([
+      group.save(),
+      user.save(),
+    ]);
+
+    res.respond(200, savedGroup.quest);
+
+    // send out invites
+    const inviterVars = getUserInfo(user, ['name', 'email']);
+    const membersToEmail = members.filter(async member => {
+      // send push notifications while filtering members before sending emails
+      if (member.preferences.pushNotifications.invitedQuest !== false) {
+        await sendPushNotification(
+          member,
+          {
+            title: quest.text(member.preferences.language),
+            message: res.t('questInvitationNotificationInfo', member.preferences.language),
+            identifier: 'questInvitation',
+            category: 'questInvitation',
+          },
+        );
+      }
+
+      // Send webhooks
+      questActivityWebhook.send(member, {
+        type: 'questInvited',
+        group,
+        quest,
+      });
+
+      return member.preferences.emailNotifications.invitedQuest !== false;
+    });
+    sendTxnEmail(membersToEmail, `invite-${quest.boss ? 'boss' : 'collection'}-quest`, [
+      { name: 'QUEST_NAME', content: quest.text() },
+      { name: 'INVITER', content: inviterVars.name },
+      { name: 'PARTY_URL', content: '/party' },
+    ]);
+
+    // Send webhook to the inviter too
+    questActivityWebhook.send(user, {
+      type: 'questInvited',
+      group,
+      quest,
+    });
+
+    // track that the inviting user has accepted the quest
+    analytics.track('quest', {
+      category: 'behavior',
+      owner: true,
+      response: 'accept',
+      gaLabel: 'accept',
+      questName: quest.name,
       uuid: user._id,
       headers: req.headers,
     });

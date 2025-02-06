@@ -13,6 +13,7 @@ import { DEPRECATED_ROUTES } from '@/router/deprecated-routes';
 
 const RegisterLoginReset = () => import(/* webpackChunkName: "auth" */'@/components/auth/registerLoginReset');
 const Logout = () => import(/* webpackChunkName: "auth" */'@/components/auth/logout');
+const Avatar = () => import(/* webpackChunkName: "avatar" */'@/components/avatar');
 
 // Hall
 const HallPage = () => import(/* webpackChunkName: "hall" */'@/components/hall/index');
@@ -40,9 +41,11 @@ const EquipmentPage = () => import(/* webpackChunkName: "inventory" */'@/compone
 const StablePage = () => import(/* webpackChunkName: "inventory" */'@/components/inventory/stable/index');
 
 // Guilds & Parties
+const PartyIndex = () => import(/* webpackChunkName: "group-plans" */ '@/components/group-plans/partyIndex');
+const LookingForParty = () => import(/* webpackChunkName: "guilds" */ '@/components/groups/lookingForParty');
+
 const GroupPage = () => import(/* webpackChunkName: "guilds" */ '@/components/groups/group');
 const GroupPlansAppPage = () => import(/* webpackChunkName: "guilds" */ '@/components/static/groupPlans');
-const LookingForParty = () => import(/* webpackChunkName: "guilds" */ '@/components/groups/lookingForParty');
 
 // Group Plans
 const GroupPlanIndex = () => import(/* webpackChunkName: "group-plans" */ '@/components/group-plans/index');
@@ -81,6 +84,18 @@ const router = new VueRouter({
   // in the route component to set a specific subtitle for the page.
   routes: [
     {
+      name: 'avatar',
+      path: '/avatar/:userId',
+      component: Avatar,
+      props: true,
+      meta: { requiresLogin: false },
+      children: [
+        { name: 'full', path: 'full', component: Avatar },
+        { name: 'head', path: 'head', component: Avatar },
+        { name: 'body', path: 'body', component: Avatar },
+      ],
+    },
+    {
       name: 'register', path: '/register', component: RegisterLoginReset, meta: { requiresLogin: false },
     },
     {
@@ -118,7 +133,26 @@ const router = new VueRouter({
         { name: 'time', path: 'time', component: TimeTravelersPage },
       ],
     },
-    { name: 'party', path: '/party', component: GroupPage },
+    {
+      name: 'party',
+      path: '/party',
+      component: PartyIndex,
+      props: true,
+      children: [
+        {
+          name: 'partyDetailTaskInformation',
+          path: '/party/tasks',
+          component: GroupPlanTaskInformation,
+          props: true,
+        },
+        {
+          name: 'partyDetailInformation',
+          path: '/party/information',
+          component: GroupPage,
+          props: true,
+        },
+      ],
+    },
     { name: 'lookingForParty', path: '/looking-for-party', component: LookingForParty },
     { name: 'groupPlan', path: '/group-plans', component: GroupPlansAppPage },
     {
@@ -219,7 +253,7 @@ const router = new VueRouter({
 
     // Only used to handle some redirects
     // See router.beforeEach
-    { path: '/static/faq/tavern-and-guilds', redirect: '/static/tavern-and-guilds' },
+    { path: '/static/tavern-and-guilds', redirect: '/static/faq/tavern-and-guilds' },
     { path: '/redirect/:redirect', name: 'redirect' },
     { path: '*', redirect: { name: 'notFound' } },
   ],
