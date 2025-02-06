@@ -23,8 +23,6 @@ The following noteworthy changes were applied to the Habitica source code:
 ## Limitations
 
 The following things do not work (yet):
-
-- dailies for group plans are not reset (the actual cron script [team-cron.js](scripts/team-cron.js) would need to be executed regularly for this)
 - third-party access and scripts are not thoroughly disabled, so there might still be some scripts loaded
 
 Contributions to fix those or other things are very welcome!

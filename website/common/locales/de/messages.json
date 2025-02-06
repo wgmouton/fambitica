@@ -46,17 +46,17 @@
     "messageNotAbleToBuyInBulk": "Dieser Gegenstand kann nicht in größeren Mengen als 1 gekauft werden.",
     "notificationsRequired": "Mitteilungs-IDs werden benötigt.",
     "unallocatedStatsPoints": "Du kannst <span class=\"notification-bold-blue\"><%= points %> Attributpunkt(e)</span> verteilen",
-    "beginningOfConversation": "Dies ist der Anfang Deiner Unterhaltung mit <%= userName %>.",
     "messageDeletedUser": "Tut uns leid, dieser Benutzer hat sein Konto gelöscht.",
     "messageMissingDisplayName": "Fehlender Anzeigename.",
     "reportedMessage": "Du hast diese Nachricht den Moderatoren gemeldet.",
     "canDeleteNow": "Du kannst diese Nachricht nun löschen, wenn Du willst.",
-    "beginningOfConversationReminder": "Denke an einen freundlichen und respektvollen Umgang und halte Dich an die Community-Richtlinien!",
     "newsPostNotFound": "News-Eintrag nicht gefunden, oder Du hast keinen Zugriff.",
     "messagePetMountUnEquipped": "Haus- und Reittier in die Stallungen gebracht.",
     "messageCostumeUnEquipped": "Kostüm abgelegt.",
     "messageBattleGearUnEquipped": "Kampfausrüstung abgelegt.",
     "messageAllUnEquipped": "Alle Auswahlen aufgehoben.",
     "messageBackgroundUnEquipped": "Hintergrundauswahl aufgehoben.",
-    "featureRetired": "Diese Funktion wird nicht mehr unterstützt."
+    "featureRetired": "Diese Funktion wird nicht mehr unterstützt.",
+    "beginningOfConversation": "Dies ist der Beginn deiner Konversation mit <%= userName %>.",
+    "beginningOfConversationReminder": "Denke daran, nett und respektvoll zu sein und den Community-Richtlinien zu folgen!"
 }

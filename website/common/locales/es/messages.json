@@ -46,17 +46,17 @@
     "messageNotAbleToBuyInBulk": "Este artículo no se puede comprar en cantidades superiores a 1.",
     "notificationsRequired": "Se requieren ids de notificación.",
     "unallocatedStatsPoints": "Tienes <span class=\"notification-bold-blue\"><%= points %> Puntos de Atributo sin asignar</span>",
-    "beginningOfConversation": "Este es el principio de tu conversación con <%= userName %>.",
     "messageDeletedUser": "Lo sentimos, este usuario ha eliminado su cuenta.",
     "messageMissingDisplayName": "Falta el nombre público.",
     "reportedMessage": "Has reportado este mensaje a los moderadores.",
     "canDeleteNow": "Ahora puedes eliminar el mensaje si lo deseas.",
-    "beginningOfConversationReminder": "¡Recuerda ser amable, respetuoso, y seguir las Normas de la Comunidad!",
     "newsPostNotFound": "Publicación de noticia no encontrada o no tienes acceso a ella.",
     "messageAllUnEquipped": "Nada equipado.",
     "messageBackgroundUnEquipped": "Fondo no equipado.",
     "messagePetMountUnEquipped": "Mascota y Montura no equipadas.",
     "messageCostumeUnEquipped": "Disfraz no equipado.",
     "messageBattleGearUnEquipped": "Equipamiento de batalla no equipado.",
-    "featureRetired": "Esta función ya no está disponible."
+    "featureRetired": "Esta función ya no está disponible.",
+    "beginningOfConversationReminder": "¡Recuerda que es muy importante que seas amable, respetuoso y que sigas la Normas de la Comunidad!",
+    "beginningOfConversation": "Este es el principio de tu conversación con <%= userName %>."
 }
