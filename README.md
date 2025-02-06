@@ -1,4 +1,5 @@
-# Habitica Self-Hosted
+# Habitica Self-Hosted Tuned for a young family
+## This is a very purpose built fork for habitca that focus on the homeassistant integration and tweeked for use with a younder family. This is not a production ready for and will never be one.
 
 Adaptions and infrastructure to facilitate self-hosting of the habit-building program [Habitica](https://habitica.com). It is based on the source code and assets of the [Habitica Repository](https://github.com/HabitRPG/habitica), hence the [LICENSE](https://github.com/HabitRPG/habitica/blob/develop/LICENSE) from there applies here and to the adaptions in this repository as well.
 
@@ -23,8 +24,6 @@ The following noteworthy changes were applied to the Habitica source code:
 ## Limitations
 
 The following things do not work (yet):
-
-- dailies for group plans are not reset (the actual cron script [team-cron.js](scripts/team-cron.js) would need to be executed regularly for this)
 - third-party access and scripts are not thoroughly disabled, so there might still be some scripts loaded
 
 Contributions to fix those or other things are very welcome!
