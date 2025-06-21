@@ -7,5 +7,6 @@ module.exports = {
   rules: {
     'prefer-regex-literals': 'warn',
     'import/no-extraneous-dependencies': 'off',
+    'max-len': 'off',
   },
 };

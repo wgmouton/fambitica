@@ -42,8 +42,8 @@ import logger from '../logger';
  */
 async function createTasks (req, res, options = {}) {
   const {
-    user,
-    challenge,
+    user, 
+    challenge,  
     group,
   } = options;
 

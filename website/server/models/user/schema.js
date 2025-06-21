@@ -495,6 +495,7 @@ export const UserSchema = new Schema({
     orderAscending: { $type: String, default: 'ascending' },
     quest: {
       key: String,
+      details: { $type: Schema.Types.Mixed, default: {} },
       progress: {
         up: { $type: Number, default: 0 },
         down: { $type: Number, default: 0 },

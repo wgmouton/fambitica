@@ -25,6 +25,7 @@ module.exports = {
     // maybe this can be turned on again once we switch to newer vue/vite
     // Important! process.env.XYZ should not be destructured
     'prefer-destructuring': 'off',
+    'max-len': 'off',
     'vue/html-self-closing': ['error', {
       html: {
         void: 'never',

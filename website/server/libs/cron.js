@@ -241,8 +241,8 @@ export async function cron (options = {}) {
   if (!CRON_SAFE_MODE && userHasTerminatedSubscription) removeTerminatedSubscription(user);
 
   // Login Incentives
-  user.loginIncentives += 1;
-  awardLoginIncentives(user);
+  // user.loginIncentives += 1;
+  // awardLoginIncentives(user);
 
   const multiDaysCountAsOneDay = true;
   // If the user does not log in for two or more days,

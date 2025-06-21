@@ -86,7 +86,7 @@
             <div class="p-3">
               <div class="row d-flex align-items-center mb-2">
                 <div class="col-sm-6">
-                  <strong class="float-left">{{ questData.boss.name() }}</strong>
+                  <strong class="float-left">{{ questData.boss.name }}</strong>
                 </div>
                 <div class="col-sm-6">
                   <span class="d-flex float-right">
@@ -120,7 +120,7 @@
               </span>
               <div class="mt-3 mb-2">
                 <strong class="mr-1">{{ $t('rageAttack') }}</strong>
-                <span>{{ questData.boss.rage.title() }}</span>
+                <span>{{ questData.boss.rage.title }}</span>
               </div>
               <div class="grey-progress-bar mb-1">
                 <div
@@ -144,7 +144,7 @@
                 <div class="col-sm-4 d-flex">
                   <strong class="mr-2">{{ $t('rageStrikes') }}</strong>
                   <div
-                    v-b-tooltip.hover.top="questData.boss.rage.description()"
+                    v-b-tooltip.hover.top="questData.boss.rage.description"
                     class="svg-icon boss-icon information-icon m-auto"
                     v-html="icons.informationIcon"
                   ></div>

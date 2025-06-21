@@ -57,7 +57,7 @@ function _lookUpItemName (itemKey) {
   } else if (hatchingPotion) {
     itemName = `${hatchingPotion.text()} Hatching Potion`;
   } else if (quest) {
-    itemName = quest.text();
+    itemName = quest.text;
   } else if (spell) {
     itemName = spell.text();
   }

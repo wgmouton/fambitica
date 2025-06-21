@@ -77,7 +77,10 @@ export default {
       return this.quests.quests[this.user.party.quest.completed];
     },
     title () {
-      return `${this.questData.text()} ${this.$t('completed')}`;
+      if (typeof this.questData.text === 'function') {
+        return `${this.questData.text()} ${this.$t('completed')}`;
+      }
+      return `${this.questData.text} ${this.$t('completed')}`;
     },
     barStyle () {
       return {

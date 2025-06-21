@@ -23,6 +23,9 @@ export default {
     prefix: {
       type: String,
     },
+    url: {
+      type: String,
+    },
   },
   methods: {
     getFileType (name) {
@@ -32,18 +35,21 @@ export default {
       return 'png';
     },
     imageUrl () {
-      if (!this.imageName) {
-        return '';
+      if (!this.url) {
+        if (!this.imageName) {
+          return '';
+        }
+        let name = this.imageName;
+        if (name.indexOf(' ') !== -1) {
+          const components = name.split(' ');
+          name = components[components.length - 1];
+        }
+        if (this.prefix) {
+          name = `${this.prefix}_${name}`;
+        }
+        return `https://habitica-assets.s3.amazonaws.com/mobileApp/images/${name}.${this.getFileType(name)}`;
       }
-      let name = this.imageName;
-      if (name.indexOf(' ') !== -1) {
-        const components = name.split(' ');
-        name = components[components.length - 1];
-      }
-      if (this.prefix) {
-        name = `${this.prefix}_${name}`;
-      }
-      return `https://habitica-assets.s3.amazonaws.com/mobileApp/images/${name}.${this.getFileType(name)}`;
+      return this.url;
     },
   },
 };

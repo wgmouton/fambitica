@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable max-len -->
   <sidebar-section :title="$t('questDetails')">
     <div
       v-if="!onPendingQuest && !onActiveQuest"
@@ -53,6 +54,7 @@
       <div class="col-12 text-center">
         <Sprite
           class="quest-boss"
+          :url="(questData.image) ? questData.image : ''"
           :image-name="'quest_' + questData.key"
         />
         <div class="quest-box">
@@ -66,10 +68,10 @@
               class="quest-item-row"
             >
               <div class="quest-item-icon">
-                <Sprite :image-name="'quest_' + questData.key + '_' + key" />
+                <Sprite :url="(!value.image) ? '' : value.image" :image-name="'quest_' + questData.key + '_' + key" />
               </div>
               <div class="quest-item-info">
-                <span class="label quest-label">{{ value.text() }}</span>
+                <span class="label quest-label">{{ (typeof  value.text === 'function') ?  value.text() :  value.text }}</span>
                 <div class="grey-progress-bar">
                   <div
                     class="collect-progress-bar"
@@ -105,7 +107,7 @@
                   v-once
                   class="float-left boss-name"
                 >
-                  {{ questData.boss.name() }}
+                  {{ (typeof questData.boss.name === 'function') ? questData.boss.name() : questData.boss.name }}
                 </h4>
               </div>
             </div>
@@ -216,7 +218,7 @@
       class="quest-pending-section"
     >
       <div class="titles">
-        <strong>{{ questData.text() }} </strong>
+        <strong>{{ (typeof questData.text === 'function') ? questData.text() : questData.text }} </strong>
         <a
           class="members-invited"
           @click="openParticipantList()"
@@ -290,6 +292,7 @@
 
   .quest-boss {
     margin: 0 auto 1.188rem;
+    width: 100%;
   }
 
   .boss-health-bar {
@@ -639,7 +642,6 @@
 
 <script>
 
-import * as quests from '@/../../common/script/content/quests';
 import percent from '@/../../common/script/libs/percent';
 import { mapState } from '@/libs/store';
 import sidebarSection from '../sidebarSection';
@@ -698,7 +700,7 @@ export default {
     },
     questData () {
       if (!this.group.quest) return {};
-      return quests.quests[this.group.quest.key];
+      return this.group.quest.details;
     },
     canEditQuest () {
       if (!this.group.quest) return false;
@@ -741,6 +743,7 @@ export default {
     openQuestDetails () {
       this.$root.$emit('bv::show::modal', 'quest-detail-modal', {
         key: this.group.quest.key,
+        details: this.group.quest.details,
         from: 'sidebar',
       });
     },

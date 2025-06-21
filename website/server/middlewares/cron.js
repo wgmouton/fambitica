@@ -73,7 +73,9 @@ async function cronAsync (req, res) {
       return null;
     }
     const tasks = await Tasks.Task.find({
-      userId: user._id,
+      $or: [
+        { userId: user._id, }
+      ],
       $or: [ // Exclude completed todos
         { type: 'todo', completed: false },
         { type: { $in: ['habit', 'daily'] } },
@@ -104,10 +106,10 @@ async function cronAsync (req, res) {
       type: 'todo',
       completed: true,
       dateCompleted: {
-        $lt: moment(now).subtract(user.isSubscribed() ? 90 : 30, 'days').toDate(),
+        $lt: moment(now).subtract(5, 'days').toDate(),
       },
       'challenge.id': { $exists: false },
-      'group.id': { $exists: false },
+      // 'group.id': { $exists: false },
     }).exec();
 
     res.locals.wasModified = true; // TODO remove after v2 is retired

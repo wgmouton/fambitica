@@ -42,14 +42,15 @@ function canStartQuestAutomatically (group) {
 
 const api = {};
 
-api.inviteToQuest = {
+api.createCustomQuest = {
   method: 'POST',
-  url: '/groups/:groupId/quests/create',
+  url: '/groups/:groupId/quests/custom',
   middlewares: [authWithHeaders()],
   async handler (req, res) {
     const { user } = res.locals;
-    const { questKey } = req.params;
-    const quest = questScrolls[questKey];
+    const questKey = "custom";
+    const quest = req.body;
+    console.log(quest)
 
     req.checkParams('groupId', apiError('groupIdRequired')).notEmpty();
 
@@ -61,7 +62,6 @@ api.inviteToQuest = {
     if (!group) throw new NotFound(res.t('groupNotFound'));
     if (group.type !== 'party') throw new NotAuthorized(res.t('guildQuestsNotSupported'));
     if (!quest) throw new NotFound(apiError('questNotFound', { key: questKey }));
-    if (!user.items.quests[questKey]) throw new NotAuthorized(res.t('questNotOwned'));
     if (group.quest.key) throw new NotAuthorized(res.t('questAlreadyUnderway'));
 
     const members = await User.find({
@@ -72,12 +72,14 @@ api.inviteToQuest = {
       .exec();
 
     group.markModified('quest');
+    group.quest.key = "custom";
     group.quest.details = quest;
     group.quest.leader = user._id;
     group.quest.members = {};
     group.quest.members[user._id] = true;
 
     user.party.quest.RSVPNeeded = false;
+    user.party.quest.key = "custom";
     user.party.quest.details = quest;
 
     await User.updateMany({
@@ -86,12 +88,13 @@ api.inviteToQuest = {
     }, {
       $set: {
         'party.quest.RSVPNeeded': true,
+        'party.quest.key': "custom",
         'party.quest.details': quest,
       },
     }).exec();
 
     _.each(members, member => {
-      group.quest.members[member._id] = null;
+      group.quest.members[member._id] = true;
     });
 
     if (canStartQuestAutomatically(group)) {
@@ -113,7 +116,7 @@ api.inviteToQuest = {
         await sendPushNotification(
           member,
           {
-            title: quest.text(member.preferences.language),
+            title: quest.text,
             message: res.t('questInvitationNotificationInfo', member.preferences.language),
             identifier: 'questInvitation',
             category: 'questInvitation',
@@ -131,7 +134,7 @@ api.inviteToQuest = {
       return member.preferences.emailNotifications.invitedQuest !== false;
     });
     sendTxnEmail(membersToEmail, `invite-${quest.boss ? 'boss' : 'collection'}-quest`, [
-      { name: 'QUEST_NAME', content: quest.text() },
+      { name: 'QUEST_NAME', content: quest.text },
       { name: 'INVITER', content: inviterVars.name },
       { name: 'PARTY_URL', content: '/party' },
     ]);
@@ -199,31 +202,42 @@ api.inviteToQuest = {
       .exec();
 
     group.markModified('quest');
+    group.quest.key = questKey;
     group.quest.details = quest;
     group.quest.leader = user._id;
     group.quest.members = {};
     group.quest.members[user._id] = true;
 
     user.party.quest.RSVPNeeded = false;
+    user.party.quest.key = questKey;
     user.party.quest.details = quest;
+
+    console.log("==== hi 1");
 
     await User.updateMany({
       'party._id': group._id,
       _id: { $ne: user._id },
     }, {
       $set: {
-        'party.quest.RSVPNeeded': true,
+        'party.quest.RSVPNeeded': false,
+        'party.quest.key': questKey,
         'party.quest.details': quest,
       },
     }).exec();
 
+    console.log("==== hi 2");
+
     _.each(members, member => {
-      group.quest.members[member._id] = null;
+      group.quest.members[member._id] = true;
     });
+
+    console.log("==== hi 3");
 
     if (canStartQuestAutomatically(group)) {
       await group.startQuest(user);
     }
+
+    console.log("==== hi 4");
 
     const [savedGroup] = await Promise.all([
       group.save(),
@@ -240,7 +254,7 @@ api.inviteToQuest = {
         await sendPushNotification(
           member,
           {
-            title: quest.text(member.preferences.language),
+            title: quest.text, //(member.preferences.language),
             message: res.t('questInvitationNotificationInfo', member.preferences.language),
             identifier: 'questInvitation',
             category: 'questInvitation',
@@ -258,7 +272,7 @@ api.inviteToQuest = {
       return member.preferences.emailNotifications.invitedQuest !== false;
     });
     sendTxnEmail(membersToEmail, `invite-${quest.boss ? 'boss' : 'collection'}-quest`, [
-      { name: 'QUEST_NAME', content: quest.text() },
+      { name: 'QUEST_NAME', content: quest.text },
       { name: 'INVITER', content: inviterVars.name },
       { name: 'PARTY_URL', content: '/party' },
     ]);
@@ -569,16 +583,16 @@ api.abortQuest = {
     if (!group.quest.active) throw new NotFound(res.t('noActiveQuestToAbort'));
     if (user._id !== group.leader && user._id !== group.quest.leader) throw new NotAuthorized(res.t('onlyLeaderAbortQuest'));
 
-    const questName = questScrolls[group.quest.key].text('en');
-    const newChatMessage = await group.sendChat({
-      message: `\`${common.i18n.t('chatQuestAborted', { username: user.profile.name, questName }, 'en')}\``,
-      info: {
-        type: 'quest_abort',
-        user: user.profile.name,
-        quest: group.quest.key,
-      },
-    });
-    await newChatMessage.save();
+    // const questName = group.quest.details.text;
+    // const newChatMessage = await group.sendChat({
+    //   message: `\`${common.i18n.t('chatQuestAborted', { username: user.profile.name, questName }, 'en')}\``,
+    //   info: {
+    //     type: 'quest_abort',
+    //     user: user.profile.name,
+    //     quest: group.quest.key,
+    //   },
+    // });
+    // await newChatMessage.save();
 
     const memberUpdates = User.updateMany({
       'party._id': groupId,

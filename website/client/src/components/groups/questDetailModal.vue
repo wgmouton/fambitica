@@ -347,6 +347,9 @@ export default {
   computed: {
     ...mapState({ user: 'user.data' }),
     questData () {
+      if (this.details) {
+        return this.details;
+      }
       return quests.quests[this.selectedQuest];
     },
     dialogClass () {
@@ -445,6 +448,7 @@ export default {
       if (selectQuestPayload) {
         this.selectMode = false;
         this.selectedQuest = selectQuestPayload.key;
+        this.details = selectQuestPayload.details;
       } else {
         this.selectMode = true;
       }

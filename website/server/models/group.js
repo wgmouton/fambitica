@@ -96,6 +96,7 @@ export const schema = new Schema({
   leaderMessage: String,
   quest: {
     key: String,
+    details: { $type: Object, default: false },
     active: { $type: Boolean, default: false },
     leader: { $type: String, ref: 'User' },
     progress: {
@@ -195,6 +196,7 @@ function _cleanQuestParty (merge) {
   const updates = {
     $set: {
       'party.quest.key': null,
+      'party.quest.details': null,
       'party.quest.completed': null,
       'party.quest.RSVPNeeded': false,
     },
@@ -660,7 +662,7 @@ schema.methods.startQuest = async function startQuest (user) {
   if (this.quest.active) throw new InternalServerError('Quest is already active');
 
   const userIsParticipating = this.quest.members[user._id];
-  const quest = questScrolls[this.quest.key];
+  const quest = this.quest.details;
   let collected = {};
   if (quest.collect) {
     collected = _.transform(quest.collect, (result, n, itemToCollect) => {
@@ -711,6 +713,7 @@ schema.methods.startQuest = async function startQuest (user) {
 
   if (userIsParticipating) {
     user.party.quest.key = this.quest.key;
+    user.party.quest.details = this.quest.details;
     user.party.quest.progress.down = 0;
     user.party.quest.completed = null;
     user.markModified('party.quest');
@@ -719,17 +722,17 @@ schema.methods.startQuest = async function startQuest (user) {
   const promises = [];
 
   // Remove the quest from the quest leader items (if they are the current user)
-  if (this.quest.leader === user._id) {
-    user.items.quests[this.quest.key] -= 1;
-    user.markModified('items.quests');
-    promises.push(user.save());
-  } else { // another user is starting the quest, update the leader separately
-    promises.push(User.updateOne({ _id: this.quest.leader }, {
-      $inc: {
-        [`items.quests.${this.quest.key}`]: -1,
-      },
-    }).exec());
-  }
+  // if (this.quest.leader === user._id) {
+  //   user.items.quests[this.quest.key] -= 1;
+  //   user.markModified('items.quests');
+  //   promises.push(user.save());
+  // } else { // another user is starting the quest, update the leader separately
+  //   promises.push(User.updateOne({ _id: this.quest.leader }, {
+  //     $inc: {
+  //       [`items.quests.${this.quest.key}`]: -1,
+  //     },
+  //   }).exec());
+  // }
 
   // update the remaining users
   promises.push(User.updateMany({
@@ -737,6 +740,7 @@ schema.methods.startQuest = async function startQuest (user) {
   }, {
     $set: {
       'party.quest.key': this.quest.key,
+      'party.quest.details': this.quest.details,
       'party.quest.progress.down': 0,
       'party.quest.completed': null,
     },
@@ -750,17 +754,18 @@ schema.methods.startQuest = async function startQuest (user) {
     _id: { $in: nonMembers },
   }, _cleanQuestParty()).exec();
 
-  const newMessage = await this.sendChat({
-    message: `\`${shared.i18n.t('chatQuestStarted', { questName: quest.text('en') }, 'en')}\``,
-    metaData: {
-      participatingMembers: this.getParticipatingQuestMembers().join(', '),
-    },
-    info: {
-      type: 'quest_start',
-      quest: quest.key,
-    },
-  });
-  await newMessage.save();
+  // const newMessage = await this.sendChat({
+  //   message: `\`${shared.i18n.t('chatQuestStarted', { questName: quest.text('en') }, 'en')}\``,
+  //   metaData: {
+  //     participatingMembers: this.getParticipatingQuestMembers().join(', '),
+  //   },
+  //   info: {
+  //     type: 'quest_start',
+  //     questKey: questKey,
+  //     quest: quest,
+  //   },
+  // });
+  // await newMessage.save();
 
   const membersToEmail = [];
 
@@ -776,7 +781,7 @@ schema.methods.startQuest = async function startQuest (user) {
       if (member.preferences.pushNotifications.questStarted !== false) {
         const memberLang = member.preferences.language;
         await sendPushNotification(member, {
-          title: quest.text(memberLang),
+          title: quest.text, //(memberLang),
           message: shared.i18n.t('questStarted', memberLang),
           identifier: 'questStarted',
         });
@@ -1010,7 +1015,7 @@ schema.methods._processBossQuest = async function processBossQuest (options) {
   } = options;
 
   const group = this;
-  const quest = questScrolls[group.quest.key];
+  const quest = group.quest.details;
   const down = progress.down * quest.boss.str; // multiply by boss strength
   // Everyone takes damage
   const updates = {
@@ -1117,7 +1122,7 @@ schema.methods._processCollectionQuest = async function processCollectionQuest (
   } = options;
 
   const group = this;
-  const quest = questScrolls[group.quest.key];
+  const quest = group.quest.details;
   const itemsFound = {};
   Object.keys(quest.collect).forEach(item => {
     itemsFound[item] = 0;
