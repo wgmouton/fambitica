@@ -19,6 +19,7 @@ import common from '../../../common';
 import { sendNotification as sendPushNotification } from '../../libs/pushNotifications';
 import { apiError } from '../../libs/apiError';
 import { questActivityWebhook } from '../../libs/webhook';
+import { model as UserHistory } from '../../models/userHistory';
 
 const analytics = getAnalyticsServiceByEnvironment();
 
@@ -248,9 +249,12 @@ api.inviteToQuest = {
 
     // send out invites
     const inviterVars = getUserInfo(user, ['name', 'email']);
-    const membersToEmail = members.filter(async member => {
+    const membersToEmail = [];
+
+    for (const member of members) {
       // send push notifications while filtering members before sending emails
       if (member.preferences.pushNotifications.invitedQuest !== false) {
+        // eslint-disable-next-line no-await-in-loop
         await sendPushNotification(
           member,
           {
@@ -269,8 +273,11 @@ api.inviteToQuest = {
         quest,
       });
 
-      return member.preferences.emailNotifications.invitedQuest !== false;
-    });
+      if (member.preferences.emailNotifications.invitedQuest !== false) {
+        membersToEmail.push(member);
+      }
+    }
+
     sendTxnEmail(membersToEmail, `invite-${quest.boss ? 'boss' : 'collection'}-quest`, [
       { name: 'QUEST_NAME', content: quest.text },
       { name: 'INVITER', content: inviterVars.name },
@@ -294,6 +301,10 @@ api.inviteToQuest = {
       uuid: user._id,
       headers: req.headers,
     });
+
+    await UserHistory.beginUserHistoryUpdate(user._id, req.headers)
+      .withQuestInviteResponse(group.quest.key, 'invite')
+      .commit();
   },
 };
 
@@ -355,6 +366,10 @@ api.acceptQuest = {
       uuid: user._id,
       headers: req.headers,
     });
+
+    await UserHistory.beginUserHistoryUpdate(user._id, req.headers)
+      .withQuestInviteResponse(group.quest.key, 'accept')
+      .commit();
   },
 };
 
@@ -416,6 +431,10 @@ api.rejectQuest = {
       uuid: user._id,
       headers: req.headers,
     });
+
+    await UserHistory.beginUserHistoryUpdate(user._id, req.headers)
+      .withQuestInviteResponse(group.quest.key, 'reject')
+      .commit();
   },
 };
 
@@ -521,13 +540,14 @@ api.cancelQuest = {
     }
     if (group.quest.active) throw new NotAuthorized(res.t('cantCancelActiveQuest'));
 
-    const questName = questScrolls[group.quest.key].text('en');
+    const questKey = group.quest.key;
+    const questName = questScrolls[questKey].text('en');
     const newChatMessage = await group.sendChat({
       message: `\`${user.profile.name} cancelled the party quest ${questName}.\``,
       info: {
         type: 'quest_cancel',
         user: user.profile.name,
-        quest: group.quest.key,
+        quest: questKey,
       },
     });
 
@@ -544,6 +564,15 @@ api.cancelQuest = {
     ]);
 
     res.respond(200, savedGroup.quest);
+
+    await UserHistory.beginUserHistoryUpdate(user._id, req.headers)
+      .withQuestInviteResponse(questKey, 'cancel')
+      .commit();
+    if (group.quest.leader !== user._id) {
+      await UserHistory.beginUserHistoryUpdate(group.quest.leader, req.headers)
+        .withQuestInviteResponse(questKey, 'cancelByLeader')
+        .commit();
+    }
   },
 };
 
@@ -602,7 +631,7 @@ api.abortQuest = {
       _id: group.quest.leader,
     }, {
       $inc: {
-        [`items.quests.${group.quest.key}`]: 1, // give back the quest to the quest leader
+        [`items.quests.${questKey}`]: 1, // give back the quest to the quest leader
       },
     }).exec();
 
@@ -612,6 +641,15 @@ api.abortQuest = {
     const [groupSaved] = await Promise.all([group.save(), memberUpdates, questLeaderUpdate]);
 
     res.respond(200, groupSaved.quest);
+
+    await UserHistory.beginUserHistoryUpdate(user._id, req.headers)
+      .withQuestInviteResponse(questKey, 'abort')
+      .commit();
+    if (group.quest.leader !== user._id) {
+      await UserHistory.beginUserHistoryUpdate(group.quest.leader, req.headers)
+        .withQuestInviteResponse(questKey, 'abortByLeader')
+        .commit();
+    }
   },
 };
 
@@ -659,6 +697,10 @@ api.leaveQuest = {
     ]);
 
     res.respond(200, savedGroup.quest);
+
+    await UserHistory.beginUserHistoryUpdate(user._id, req.headers)
+      .withQuestInviteResponse(group.quest.key, 'leave')
+      .commit();
   },
 };
 

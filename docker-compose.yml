@@ -11,13 +11,6 @@ services:
   #     - habitica
   #   ports:
   #     - "3000:3000"
-  export_html:
-    platform: linux/amd64
-    image: bedrockio/export-html
-    ports:
-      - "2305:2305"
-    networks:
-      - habitica
   server:
     build:
       context: .
@@ -25,7 +18,6 @@ services:
       target: server
     depends_on:
       - mongo
-      - export_html
     environment:
       - NODE_DB_URI=mongodb://mongo/habitica # this only needs to be adapted if using a separate database
       - BASE_URL=http://127.0.0.1:8080 # change this to the URL under which your instance will be reachable
@@ -36,6 +28,7 @@ services:
       - "3000:3000"
   mongo:
     image: docker.io/mongo:5.0
+    # image: docker.io/mongo:latest
     restart: unless-stopped
     hostname: mongo
     command: ["--replSet", "rs", "--bind_ip_all", "--port", "27017"]
@@ -47,8 +40,8 @@ services:
       start_interval: 1s
       retries: 30
     volumes:
-      - ./db:/data/db:rw,Z
-      - ./dbconf:/data/configdb:Z
+      - ./mongodb-data/db:/data/db:rw,Z
+      - ./mongodb-data/dbconf:/data/configdb:Z
     networks:
       habitica:
         aliases:

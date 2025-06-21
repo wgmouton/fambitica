@@ -2,6 +2,7 @@ import moment from 'moment';
 import {
   defaults, map, flatten, flow, compact, uniq, partialRight, remove,
 } from 'lodash';
+import { v4 as uuid } from 'uuid';
 import common from '../../../common';
 
 import { // eslint-disable-line import/no-cycle
@@ -121,8 +122,11 @@ schema.methods.sendMessage = async function sendMessage (userToReceiveMessage, o
   // whether to save users after sending the message, defaults to true
   const saveUsers = options.save !== false;
 
+  const uniqueMessageId = uuid();
+
   const newReceiverMessage = new Inbox({
     ownerId: userToReceiveMessage._id,
+    uniqueMessageId,
   });
   Object.assign(newReceiverMessage, messageDefaults(options.receiverMsg, sender));
   setUserStyles(newReceiverMessage, sender);
@@ -161,6 +165,7 @@ schema.methods.sendMessage = async function sendMessage (userToReceiveMessage, o
     newSenderMessage = new Inbox({
       sent: true,
       ownerId: sender._id,
+      uniqueMessageId,
     });
     Object.assign(newSenderMessage, messageDefaults(senderMsg, userToReceiveMessage));
     setUserStyles(newSenderMessage, sender);

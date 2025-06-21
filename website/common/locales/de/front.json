@@ -170,7 +170,7 @@
     "joinMany": "Schließe Dich über <%= userCountInMillions %> Millionen Leuten an und habe Spaß, während Du Deine Aufgaben erfüllst!",
     "joinToday": "Tritt Habitica heute bei",
     "signup": "Registrieren",
-    "getStarted": "Auf gehts",
+    "getStarted": "Auf geht's",
     "mobileApps": "Mobile Apps",
     "learnMore": "Mehr erfahren",
     "communityInstagram": "Instagram",
@@ -180,5 +180,7 @@
     "emailUsernamePlaceholder": "z.B., habitrabbit oder gryphon@beispiel.com",
     "footerProduct": "Produkt",
     "incorrectResetPhrase": "Bitte tippe <%= magicWord %> in Großbuchstaben um deinen Account zurückzusetzen.",
-    "translateHabitica": "Habitica übersetzen"
+    "translateHabitica": "Habitica übersetzen",
+    "marketing3Lead1Title": "Android & iOS Apps",
+    "marketing4Lead3Button": "Starte noch heute"
 }

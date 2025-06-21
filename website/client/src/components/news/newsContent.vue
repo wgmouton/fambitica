@@ -33,7 +33,7 @@
 </template>
 
 <style lang='scss'>
-@import '~@/assets/scss/static.scss';
+@import '@/assets/scss/static.scss';
 #bailey {
   .markdown-img-link {
     display: flex;
@@ -48,7 +48,7 @@
 </style>
 
 <style lang='scss' scoped>
-@import '~@/assets/scss/colors.scss';
+@import '@/assets/scss/colors.scss';
 
 h1 {
   color: $purple-200;
@@ -107,7 +107,7 @@ export default {
       if (lastPublishedPost) this.posts.push(lastPublishedPost);
 
       // If the user is authorized, show any draft
-      if (this.user && this.user.contributor.newsPoster) {
+      if (this.user && (this.user.permissions.news || this.user.permissions.fullAccess)) {
         this.posts.unshift(
           ...postsFromServer
             .filter(p => !p.published || moment().isBefore(p.publishDate)),

@@ -66,19 +66,25 @@ export function getGroupUrl (group) {
   return groupUrl;
 }
 
-// Send a transactional email using Mandrill through the external email server
+/**
+ * Send a transactional email using Mandrill through the external email server
+ *
+ * Individual "canSend" per type needs to be done before,
+ * internally it checks by `getUserInfo` if the
+ * `unsubscribeFromAll` is set to true, if so it won't send the email.
+ */
 export async function sendTxn (mailingInfoArray, emailType, variables, personalVariables) {
 //   if (!Array.isArray(mailingInfoArray)) {
 //     mailingInfoArray = [mailingInfoArray]; // eslint-disable-line no-param-reassign
 //   }
 
-//   for (const entry of mailingInfoArray) {
-//     if (typeof entry === 'string'
-//       && (typeof entry._id === 'undefined' && typeof entry.email === 'undefined')
-//     ) {
-//       throw new Error('Argument Error mailingInfoArray: does not contain email or _id');
-//     }
-//   }
+  // for (const entry of mailingInfoArray) {
+  //   if (typeof entry === 'string'
+  //     || (typeof entry._id === 'undefined' && typeof entry.email === 'undefined')
+  //   ) {
+  //     throw new Error('Argument Error mailingInfoArray: does not contain email or _id');
+  //   }
+  // }
 
 //   if (variables && !Array.isArray(variables)) {
 //     throw new Error('Argument Error variables: is not an array');
@@ -94,14 +100,14 @@ export async function sendTxn (mailingInfoArray, emailType, variables, personalV
 //     }
 //   }
 
-//   // It's important to pass at least a user with its `preferences`
-//   // as we need to check if he unsubscribed
-//   mailingInfoArray = mailingInfoArray // eslint-disable-line no-param-reassign
-//     .map(mailingInfo => (mailingInfo._id ? getUserInfo(mailingInfo, ['_id', 'email', 'name', 'canSend']) : mailingInfo))
-//     // Always send reset-password emails
-//     // Don't check canSend for non registered users as already checked before
-//     .filter(mailingInfo => mailingInfo.email
-//         && (!mailingInfo._id || mailingInfo.canSend || emailType === 'reset-password'));
+  // // It's important to pass at least a user with its `preferences`
+  // // as we need to check if he unsubscribed
+  // mailingInfoArray = mailingInfoArray // eslint-disable-line no-param-reassign
+  //   .map(mailingInfo => (mailingInfo._id ? getUserInfo(mailingInfo, ['_id', 'email', 'name', 'canSend']) : mailingInfo))
+  //   // Always send reset-password emails
+  //   // Don't check canSend for non registered users as already checked before
+  //   .filter(mailingInfo => mailingInfo.email
+  //     && (!mailingInfo._id || mailingInfo.canSend || emailType === 'reset-password'));
 
 //   // Personal variables are personal to each email recipient, if they are missing
 //   // we manually create a structure for them with RECIPIENT_NAME and RECIPIENT_UNSUB_URL
@@ -150,38 +156,38 @@ export async function sendTxn (mailingInfoArray, emailType, variables, personalV
 //     });
 //   }
 
-//   if (IS_PROD && mailingInfoArray.length > 0) {
-//     if (EMAIL_SERVER.url === undefined || EMAIL_SERVER.url === '') {
-//       logger.info('Will not send email, because there is no mail server configured.');
-//       return null;
-//     }
+  // if (IS_PROD && mailingInfoArray.length > 0) {
+  //   if (EMAIL_SERVER.url === undefined || EMAIL_SERVER.url === '') {
+  //     logger.info('Will not send email, because there is no mail server configured.');
+  //     return null;
+  //   }
 
-//     return sendEmail(emailType, variables, personalVariables);
+  //   return sendEmail(emailType, variables, personalVariables);
 
-//     return got.post(`${EMAIL_SERVER.url}/job`, {
-//       retry: 5, // retry the http request to the email server 5 times
-//       timeout: 60000, // wait up to 60s before timing out
-//       username: EMAIL_SERVER.auth.user,
-//       password: EMAIL_SERVER.auth.password,
-//       json: {
-//         type: 'email',
-//         data: {
-//           emailType,
-//           to: mailingInfoArray,
-//           variables,
-//           personalVariables,
-//         },
-//         options: {
-//           priority: 'high',
-//           attempts: 5,
-//           backoff: { delay: 10 * 60 * 1000, type: 'fixed' },
-//         },
-//       },
-//     }).json().catch(err => logger.error(err, {
-//       extraMessage: 'Error while sending an email.',
-//       emailType,
-//     }));
-//   }
+  //   return got.post(`${EMAIL_SERVER.url}/job`, {
+  //     retry: 5, // retry the http request to the email server 5 times
+  //     timeout: 60000, // wait up to 60s before timing out
+  //     username: EMAIL_SERVER.auth.user,
+  //     password: EMAIL_SERVER.auth.password,
+  //     json: {
+  //       type: 'email',
+  //       data: {
+  //         emailType,
+  //         to: mailingInfoArray,
+  //         variables,
+  //         personalVariables,
+  //       },
+  //       options: {
+  //         priority: 'high',
+  //         attempts: 5,
+  //         backoff: { delay: 10 * 60 * 1000, type: 'fixed' },
+  //       },
+  //     },
+  //   }).json().catch(err => logger.error(err, {
+  //     extraMessage: 'Error while sending an email.',
+  //     emailType,
+  //   }));
+  // }
 
   return null;
 }

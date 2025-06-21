@@ -52,7 +52,7 @@ const GroupPlanIndex = () => import(/* webpackChunkName: "group-plans" */ '@/com
 const GroupPlanTaskInformation = () => import(/* webpackChunkName: "group-plans" */ '@/components/group-plans/taskInformation');
 const GroupPlanBilling = () => import(/* webpackChunkName: "group-plans" */ '@/components/group-plans/billing');
 
-const MessagesIndex = () => import(/* webpackChunkName: "private-messages" */ '@/pages/private-messages');
+const MessagesIndex = () => import(/* webpackChunkName: "private-messages" */ '@/pages/private-messages/index.vue');
 
 // Challenges
 const ChallengeIndex = () => import(/* webpackChunkName: "challenges" */ '@/components/challenges/index');
@@ -72,7 +72,7 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   mode: 'history',
-  base: process.env.NODE_ENV === 'production' ? '/' : __dirname, // eslint-disable-line no-process-env
+  base: '/',
   linkActiveClass: 'active',
   // When navigating to another route always scroll to the top
   // To customize the behavior see https://router.vuejs.org/en/advanced/scroll-behavior.html
@@ -224,7 +224,6 @@ const router = new VueRouter({
       meta: {
         privilegeNeeded: [ // any one of these is enough to give access
           'userSupport',
-          'newsPoster',
         ],
       },
       children: [
