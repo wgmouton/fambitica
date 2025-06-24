@@ -1074,44 +1074,44 @@ schema.methods._processBossQuest = async function processBossQuest (options) {
 
   group.quest.progress.hp -= progress.up;
   if (CRON_SAFE_MODE || CRON_SEMI_SAFE_MODE) {
-    const groupMessage = await group.sendChat({
-      message: `\`${shared.i18n.t('chatBossDontAttack', { bossName: quest.boss.name('en') }, 'en')}\``,
-      info: {
-        type: 'boss_dont_attack',
-        user: user.profile.name,
-        quest: group.quest.key,
-        userDamage: progress.up.toFixed(1),
-      },
-    });
-    promises.push(groupMessage.save());
+    // const groupMessage = await group.sendChat({
+    //   message: `\`${shared.i18n.t('chatBossDontAttack', { bossName: quest.boss.name('en') }, 'en')}\``,
+    //   info: {
+    //     type: 'boss_dont_attack',
+    //     user: user.profile.name,
+    //     quest: group.quest.key,
+    //     userDamage: progress.up.toFixed(1),
+    //   },
+    // });
+    // promises.push(groupMessage.save());
   } else {
-    const groupMessage = await group.sendChat({
-      message: `\`${shared.i18n.t('chatBossDamage', {
-        username: user.profile.name, bossName: quest.boss.name('en'), userDamage: progress.up.toFixed(1), bossDamage: Math.abs(down).toFixed(1),
-      }, user.preferences.language)}\``,
-      info: {
-        type: 'boss_damage',
-        user: user.profile.name,
-        quest: group.quest.key,
-        userDamage: progress.up.toFixed(1),
-        bossDamage: Math.abs(down).toFixed(1),
-      },
-    });
-    promises.push(groupMessage.save());
+    // const groupMessage = await group.sendChat({
+    //   message: `\`${shared.i18n.t('chatBossDamage', {
+    //     username: user.profile.name, bossName: quest.boss.name('en'), userDamage: progress.up.toFixed(1), bossDamage: Math.abs(down).toFixed(1),
+    //   }, user.preferences.language)}\``,
+    //   info: {
+    //     type: 'boss_damage',
+    //     user: user.profile.name,
+    //     quest: group.quest.key,
+    //     userDamage: progress.up.toFixed(1),
+    //     bossDamage: Math.abs(down).toFixed(1),
+    //   },
+    // });
+    // promises.push(groupMessage.save());
   }
 
   // If boss has Rage, increment Rage as well
   if (quest.boss.rage) {
     group.quest.progress.rage += Math.abs(down);
     if (group.quest.progress.rage >= quest.boss.rage.value) {
-      const rageMessage = await group.sendChat({
-        message: quest.boss.rage.effect('en'),
-        info: {
-          type: 'boss_rage',
-          quest: quest.key,
-        },
-      });
-      promises.push(rageMessage.save());
+      // const rageMessage = await group.sendChat({
+      //   message: quest.boss.rage.effect('en'),
+      //   info: {
+      //     type: 'boss_rage',
+      //     quest: quest.key,
+      //   },
+      // });
+      // promises.push(rageMessage.save());
       group.quest.progress.rage = 0;
 
       // TODO To make Rage effects more expandable,
@@ -1147,14 +1147,14 @@ schema.methods._processBossQuest = async function processBossQuest (options) {
 
   // Boss slain, finish quest
   if (group.quest.progress.hp <= 0) {
-    const questFinishChat = await group.sendChat({
-      message: `\`${shared.i18n.t('chatBossDefeated', { bossName: quest.boss.name('en') }, 'en')}\``,
-      info: {
-        type: 'boss_defeated',
-        quest: quest.key,
-      },
-    });
-    promises.push(questFinishChat.save());
+    // const questFinishChat = await group.sendChat({
+    //   message: `\`${shared.i18n.t('chatBossDefeated', { bossName: quest.boss.name('en') }, 'en')}\``,
+    //   info: {
+    //     type: 'boss_defeated',
+    //     quest: quest.key,
+    //   },
+    // });
+    // promises.push(questFinishChat.save());
 
     // Participants: Grant rewards & achievements, finish quest
     await group.finishQuest(shared.content.quests[group.quest.key]);
@@ -1225,7 +1225,7 @@ schema.methods._processCollectionQuest = async function processCollectionQuest (
     });
 
     promises.push(allItemsFoundChat.save());
-  }
+  }processBossQuest
 
   return Promise.all(promises);
 };

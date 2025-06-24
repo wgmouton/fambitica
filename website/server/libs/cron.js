@@ -460,19 +460,20 @@ export async function cronWrapper (req, res) {
     await checkForActiveCron(user, now);
     const { daysMissed, timezoneUtcOffsetFromUserPrefs } = user.daysUserHasMissed(now, req);
 
-    if (daysMissed <= 0) {
-      if (user.isModified()) {
-        user._cronSignature = 'NOT_RUNNING';
-        await user.save();
-      } else {
-        await unlockUser(user);
-      }
-      return null;
-    }
+    // if (daysMissed <= 0) {
+    //   if (user.isModified()) {
+    //     user._cronSignature = 'NOT_RUNNING';
+    //     await user.save();
+    //   } else {
+    //     await unlockUser(user);
+    //   }
+    //   return null;
+    // }
 
     // Clear old completed todos - 30 days for free users, 90 for subscribers
     // Do not delete challenges completed todos TODO unless the task is broken?
     // Do not delete group completed todos
+    //TODO[WG]: look at this to clear old todos.
     await Tasks.Task.deleteMany({
       userId: user._id,
       type: 'todo',

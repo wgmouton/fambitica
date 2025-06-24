@@ -16,18 +16,20 @@ services:
       context: .
       dockerfile: ./Dockerfile
       target: server
+      platforms:
+        - "linux/amd64"
     depends_on:
       - mongo
     environment:
-      - NODE_DB_URI=mongodb://mongo/habitica # this only needs to be adapted if using a separate database
-      - BASE_URL=http://127.0.0.1:8080 # change this to the URL under which your instance will be reachable
+      - NODE_DB_URI=mongodb://mongo:27017/habitica # this only needs to be adapted if using a separate database
+      - BASE_URL=http://0.0.0.0:8080 # change this to the URL under which your instance will be reachable
       - INVITE_ONLY=false # change to `true` after registration of initial users, to restrict further registrations
     networks:
       - habitica
     ports:
       - "3000:3000"
   mongo:
-    image: docker.io/mongo:5.0
+    image: mongo:latest
     # image: docker.io/mongo:latest
     restart: unless-stopped
     hostname: mongo
@@ -39,6 +41,8 @@ services:
       start_period: 0s
       start_interval: 1s
       retries: 30
+    ports:
+      - "27017:27017"
     volumes:
       - ./mongodb-data/db:/data/db:rw,Z
       - ./mongodb-data/dbconf:/data/configdb:Z
@@ -46,6 +50,18 @@ services:
       habitica:
         aliases:
           - mongo
+  mongo_express:
+    depends_on:
+      - mongo
+    image: mongo-express
+    restart: always
+    environment:
+      ME_CONFIG_MONGODB_URL: "mongodb://mongo/habitica"
+      ME_CONFIG_BASICAUTH: false
+    ports:
+      - "8081:8081"
+    networks:
+      habitica:
 networks:
   habitica:
     driver: bridge
