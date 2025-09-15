@@ -1,4 +1,6 @@
 /* eslint-disable camelcase */
+/* eslint-disable max-len */
+/*
 import nconf from 'nconf';
 import moment from 'moment';
 import util from 'util';
@@ -280,6 +282,7 @@ api.getSubscriptionPaymentDetails = async function getSubscriptionPaymentDetails
  *
  * @return undefined
  */
+/*
 api.subscribeCancel = async function subscribeCancel (options = {}) {
   const { groupId, user, cancellationReason } = options;
 
@@ -371,3 +374,4 @@ api.ipn = async function ipnApi (options = {}) {
 };
 
 export default api;
+*/
