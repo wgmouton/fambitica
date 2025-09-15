@@ -10,7 +10,12 @@ const EMAIL_SERVER = {
   },
 };
 
-export function sendJob (type, config) {
+export function sendJob(type, config) {
+  if (EMAIL_SERVER.url === undefined || EMAIL_SERVER.url === '') {
+    logger.info('Will not send email, because there is no mail server configured.');
+    return null;
+  }
+
   const { data, options } = config;
   const usedOptions = {
     backoff: { delay: 10 * 60 * 1000, type: 'exponential' },
