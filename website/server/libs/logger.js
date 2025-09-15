@@ -19,7 +19,7 @@ const logger = winston.createLogger();
 
 const _config = {
   logger,
-  loggingEnabled: true, // false if no transport has been configured
+  loggingEnabled: false, // is set to true, if a transport gets configured
 };
 
 export { _config as _loggerConfig }; // exported for use during tests
@@ -49,6 +49,7 @@ const slimLogs = winston.format(info => {
 
 if (IS_PROD) {
   if (ENABLE_CONSOLE_LOGS_IN_PROD) {
+    _config.loggingEnabled = true;
     logger
       .add(new winston.transports.Console({ // text part
         format: winston.format.combine(
@@ -67,6 +68,7 @@ if (IS_PROD) {
   }
 
   if (LOGGLY_TOKEN && LOGGLY_SUBDOMAIN) {
+    _config.loggingEnabled = true;
     const tags = ['Winston-NodeJS'];
     if (nconf.get('SERVER_EMOJI')) {
       tags.push(nconf.get('SERVER_EMOJI'));
@@ -83,8 +85,9 @@ if (IS_PROD) {
       ),
     }));
   }
-// Do not log anything when testing unless specified
+  // Do not log anything when testing unless specified
 } else if (!IS_TEST || (IS_TEST && ENABLE_LOGS_IN_TEST)) {
+  _config.loggingEnabled = true;
   logger
     .add(new winston.transports.Console({
       level: 'warn', // warn and errors (text part)
@@ -148,8 +151,6 @@ if (IS_PROD) {
         }),
       ),
     }));
-} else {
-  _config.loggingEnabled = false;
 }
 
 // exports a public interface insteaf of accessing directly the logger module
