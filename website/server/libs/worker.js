@@ -1,6 +1,7 @@
-import got from 'got';
+//import got from 'got';
 import nconf from 'nconf';
 import logger from './logger';
+import sendEmail from './emailSmtp';
 
 const EMAIL_SERVER = {
   url: nconf.get('EMAIL_SERVER_URL'),
@@ -16,6 +17,9 @@ export function sendJob(type, config) {
     return null;
   }
 
+  return sendEmail(config.data.emailType, config.data.variables, config.data.personalVariables);
+
+  /*
   const { data, options } = config;
   const usedOptions = {
     backoff: { delay: 10 * 60 * 1000, type: 'exponential' },
@@ -35,4 +39,5 @@ export function sendJob(type, config) {
   }).json().catch(err => logger.error(err, {
     extraMessage: 'Error while sending an email.',
   }));
+  */
 }
