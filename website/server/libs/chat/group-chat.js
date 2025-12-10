@@ -9,9 +9,7 @@ import { // eslint-disable-line import/no-cycle
 const questScrolls = shared.content.quests;
 
 // @TODO: Don't use this method when the group can be saved.
-export async function getGroupChat (group, options = {}) {
-  const { limit, before } = options;
-
+export async function getGroupChat (group) {
   let maxChatCount = MAX_CHAT_COUNT;
   if (group.chatLimitCount && group.chatLimitCount >= MAX_CHAT_COUNT) {
     maxChatCount = group.chatLimitCount;
@@ -19,19 +17,10 @@ export async function getGroupChat (group, options = {}) {
     maxChatCount = MAX_SUBBED_GROUP_CHAT_COUNT;
   }
 
-  const effectiveLimit = limit !== undefined ? Math.min(limit, maxChatCount) : maxChatCount;
-
-  let query = Chat.find({ groupId: group._id })
-    .sort('-timestamp');
-
-  if (before) {
-    const beforeMessage = await Chat.findOne({ _id: before }).exec();
-    if (beforeMessage) {
-      query = query.where('timestamp').lt(beforeMessage.timestamp);
-    }
-  }
-
-  const groupChat = await query.limit(effectiveLimit).exec();
+  const groupChat = await Chat.find({ groupId: group._id })
+    .limit(maxChatCount)
+    .sort('-timestamp')
+    .exec();
 
   // @TODO: Concat old chat to keep continuity of chat stored on group object
   const currentGroupChat = group.chat || [];
