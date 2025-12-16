@@ -98,7 +98,7 @@ export async function loginSocial (req, res) { // eslint-disable-line import/pre
     throw new NotFound(res.t('userNotFound'));
   }
 
-  sanitizedUsername = username.replace(/[^a-zA-Z0-9_-]/g, '');
+  let sanitizedUsername = username.replace(/[^a-zA-Z0-9_-]/g, '');
   if (!sanitizedUsername) {
     sanitizedUsername = generateUsername();
   }
