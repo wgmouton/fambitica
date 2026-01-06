@@ -150,14 +150,14 @@
           <button
             type="button"
             class="habit-option-container no-transition
-              d-flex flex-column justify-content-center align-items-center"
+            d-flex flex-column justify-content-center align-items-center"
             :class="!task.up ? cssClass('habit-control-disabled') : ''"
             :disabled="challengeAccessRequired"
             @click="toggleUpDirection()"
           >
             <div
               class="habit-option-button no-transition
-                d-flex justify-content-center align-items-center mb-2"
+              d-flex justify-content-center align-items-center mb-2"
               :class="task.up ? cssClass('bg') : ''"
             >
               <div
@@ -176,14 +176,14 @@
           <button
             type="button"
             class="habit-option-container no-transition
-              d-flex flex-column justify-content-center align-items-center"
+            d-flex flex-column justify-content-center align-items-center"
             :class="!task.down ? cssClass('habit-control-disabled') : ''"
             :disabled="challengeAccessRequired"
             @click="toggleDownDirection()"
           >
             <div
               class="habit-option-button no-transition
-                d-flex justify-content-center align-items-center mb-2"
+              d-flex justify-content-center align-items-center mb-2"
               :class="task.down ? cssClass('bg') : ''"
             >
               <div
@@ -591,7 +591,7 @@
         >
           <button
             class="btn btn-primary btn-footer
-            d-flex align-items-center justify-content-center"
+          d-flex align-items-center justify-content-center"
             :class="{'btn-disabled': !canSave}"
             type="button"
             @click="submit()"
@@ -1305,9 +1305,16 @@ export default {
       }
       this.$root.$emit('bv::hide::modal', 'task-modal');
     },
-    destroy () {
+    async destroy () {
       const type = this.$t(this.task.type);
-      if (!window.confirm(this.$t('sureDeleteType', { type }))) return; // eslint-disable-line no-alert
+      const confirmed = await new Promise(resolve => {
+        this.$root.$emit('habitica:delete-task-confirm', {
+          message: this.$t('sureDeleteType', { type }),
+          taskType: type,
+          resolve,
+        });
+      });
+      if (!confirmed) return;
       this.destroyTask(this.task);
       this.$emit('taskDestroyed', this.task);
       this.$root.$emit('bv::hide::modal', 'task-modal');
