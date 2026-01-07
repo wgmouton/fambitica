@@ -98,11 +98,6 @@ export async function loginSocial (req, res) { // eslint-disable-line import/pre
     throw new NotFound(res.t('userNotFound'));
   }
 
-  let sanitizedUsername = username.replace(/[^a-zA-Z0-9_-]/g, '');
-  if (!sanitizedUsername) {
-    sanitizedUsername = generateUsername();
-  }
-
   if (existingUser) {
     existingUser.auth[network] = {
       id: profile.id,
@@ -117,8 +112,8 @@ export async function loginSocial (req, res) { // eslint-disable-line import/pre
           emails: profile.emails,
         },
         local: {
-          username: sanitizedUsername,
-          lowerCaseUsername: sanitizedUsername.toLowerCase(),
+          username,
+          lowerCaseUsername: username.toLowerCase(),
           email,
         },
       },
