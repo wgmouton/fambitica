@@ -303,7 +303,6 @@
             ></div>
           </div>
         </div>
-  
         <div
           v-if="TIME_TRAVEL_ENABLED && user?.permissions?.fullAccess"
           :key="lastTimeJump"
@@ -343,7 +342,6 @@
             @click="jumpTime(30)"
           >+30 Days</a>
         </div>
-  
         <div
           v-if="DEBUG_ENABLED && isUserLoaded"
           class="debug-toggle"
@@ -710,7 +708,7 @@ h3 {
 
   footer {
     padding: 24px 16px;
-    
+
     .columns {
       column-gap: 1.5rem;
       display: grid !important;
