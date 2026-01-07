@@ -82,10 +82,8 @@ export async function loginSocial (req, res) { // eslint-disable-line import/pre
   }
 
   if (!existingUser && email) {
-    existingUser = await User.findOne(
-      { 'auth.local.email': email },
-      { auth: 1 },
-    ).exec();
+    // TODO we load the whole user object here. Is that necessary?
+    existingUser = await User.findOne({ 'auth.local.email': email }).exec();
   }
 
   if (!allowRegister && !existingUser) {
