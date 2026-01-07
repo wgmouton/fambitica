@@ -70,7 +70,7 @@ export async function loginSocial (req, res) { // eslint-disable-line import/pre
     if (!user.auth.local.email) {
       user.auth.local.email = await socialEmailToLocal(user);
     }
-    // Force the updated timestampt to update, so that we know they logged in
+    // Force the updated timestamp to save, so that we know they logged in
     user.auth.timestamps.updated = new Date();
     await user.save();
     return loginRes(user, req, res);
@@ -82,7 +82,10 @@ export async function loginSocial (req, res) { // eslint-disable-line import/pre
   }
 
   if (!existingUser && email) {
-    existingUser = await User.findOne({ 'auth.local.email': email }).exec();
+    existingUser = await User.findOne(
+      { 'auth.local.email': email },
+      { auth: 1 },
+    ).exec();
   }
 
   if (!allowRegister && !existingUser) {
@@ -101,6 +104,13 @@ export async function loginSocial (req, res) { // eslint-disable-line import/pre
   let sanitizedUsername = username.replace(/[^a-zA-Z0-9_-]/g, '');
   if (!sanitizedUsername) {
     sanitizedUsername = generateUsername();
+  } else {
+    const conflictingUser = await User.findOne({
+      'auth.local.lowerCaseUsername': sanitizedUsername.toLowerCase(),
+    }, { _id: 1 });
+    if (conflictingUser) {
+      sanitizedUsername = generateUsername();
+    }
   }
 
   if (existingUser) {
