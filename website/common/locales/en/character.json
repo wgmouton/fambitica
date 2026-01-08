@@ -127,7 +127,7 @@
   "evenAllocationPop": "Assigns the same number of points to each attribute.",
   "classAllocation": "Distribute based on Class",
   "classAllocationPop": "Assigns more points to the attributes important to your Class.",
-  "taskAllocation": "Distribute Points based on task activity",
+  "taskAllocation": "Distribute based on task activity",
   "taskAllocationPop": "Assigns Points based on the Strength, Intelligence, Constitution, and Perception categories associated with the tasks you complete.",
   "distributePoints": "Distribute Unallocated Points",
   "distributePointsPop": "Assigns all unallocated Stat Points according to the selected allocation scheme.",
