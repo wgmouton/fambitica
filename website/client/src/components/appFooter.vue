@@ -3,8 +3,11 @@
     <buy-gems-modal v-if="user" />
     <privacy-modal />
     <footer>
+      <!--
       <div class="columns d-flex w-100 justify-content-between">
+        -->
         <!-- Product -->
+        <!--
         <div class="product">
           <h3>{{ $t('footerProduct') }}</h3>
           <ul>
@@ -34,7 +37,9 @@
             </li>
           </ul>
         </div>
+        -->
         <!-- Company -->
+        <!--
         <div class="company">
           <h3>{{ $t('footerCompany') }}</h3>
           <ul>
@@ -64,7 +69,9 @@
             </li>
           </ul>
         </div>
+        -->
         <!-- Community -->
+        <!--
         <div class="community">
           <h3>{{ $t('footerCommunity') }}</h3>
           <ul>
@@ -96,7 +103,9 @@
             </li>
           </ul>
         </div>
+        -->
         <!-- Support -->
+        <!--
         <div class="support">
           <h3>{{ $t ('support') }}</h3>
           <ul>
@@ -135,7 +144,9 @@
             </li>
           </ul>
         </div>
+        -->
         <!-- Developers -->
+        <!--
         <div class="developers">
           <h3>{{ $t('footerDevs') }}</h3>
           <ul>
@@ -162,7 +173,9 @@
             </li>
           </ul>
         </div>
+        -->
         <!-- Social - Desktop/Tablet -->
+        <!--
         <div class="social">
           <div>
             <h3>{{ $t('footerSocial') }}</h3>
@@ -242,13 +255,18 @@
             </div>
           </div>
         </div>
+        -->
+      <!--
       </div>
+      -->
       <div>
+        <!--
         <div class="hr">
           <div>
             <hr>
           </div>
         </div>
+        -->
         <!-- DESKTOP LEGAL -->
         <div class="desktop d-flex justify-content-between align-items-center">
           <div class="copyright">
@@ -262,6 +280,7 @@
               v-html="icons.melior"
             ></div>
           </div>
+          <!--
           <div class="privacy-terms">
             <span class="privacy-policy">
               <a
@@ -276,6 +295,7 @@
               >{{ $t('terms') }}</a>
             </span>
           </div>
+          -->
         </div>
         <!-- MOBILE LEGAL -->
         <div class="mobile">
@@ -284,6 +304,7 @@
               © {{ currentYear }} Habitica. All rights reserved.
             </div>
           </div>
+          <!--
           <div class="privacy-policy mx-auto mb-2">
             <a
               target="_blank"
@@ -302,6 +323,7 @@
               v-html="icons.melior"
             ></div>
           </div>
+          -->
         </div>
         <div
           v-if="TIME_TRAVEL_ENABLED && user?.permissions?.fullAccess"
