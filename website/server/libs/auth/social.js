@@ -1,6 +1,7 @@
 import pick from 'lodash/pick';
 import passport from 'passport';
 import common from '../../../common';
+import { verifyUsername } from '../user/validation';
 import { BadRequest, NotAuthorized, NotFound } from '../errors';
 import logger from '../logger';
 import {
@@ -100,7 +101,8 @@ export async function loginSocial (req, res) { // eslint-disable-line import/pre
   }
 
   let sanitizedUsername = username.replace(/[^a-zA-Z0-9_-]/g, '');
-  if (!sanitizedUsername) {
+  const issues = verifyUsername(sanitizedUsername, res, true);
+  if (issues.length > 0) {
     sanitizedUsername = generateUsername();
   } else {
     const conflictingUser = await User.findOne({

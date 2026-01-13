@@ -76,7 +76,7 @@ describe('POST /user/auth/social', () => {
       await expect(getProperty('users', response.id, 'auth.local.lowerCaseUsername')).to.eventually.equal('googleusername');
     });
 
-    it('generates a random username if provided username is entirely invalid', async () => {
+    it('generates a random username if provided username contains only disallowed characters', async () => {
       const response = await api.post(endpoint, {
         authResponse: { access_token: randomAccessToken }, // eslint-disable-line camelcase
         network,
@@ -87,8 +87,19 @@ describe('POST /user/auth/social', () => {
       await expect(getProperty('users', response.id, 'auth.local.lowerCaseUsername')).to.eventually.contain('hb-');
     });
 
+    it('generates a random username if provided username contains a disallowed word', async () => {
+      const response = await api.post(endpoint, {
+        authResponse: { access_token: randomAccessToken }, // eslint-disable-line camelcase
+        network,
+        username: 'i am a TESTPLACEHOLDERSLURWORDHERE',
+      });
+
+      await expect(getProperty('users', response.id, 'auth.local.username')).to.eventually.contain('hb-');
+      await expect(getProperty('users', response.id, 'auth.local.lowerCaseUsername')).to.eventually.contain('hb-');
+    });
+
     it('generates a random username if sanitized username conflicts with an extant user', async () => {
-      user = generateUser({ 'auth.local.username': 'GoogleUserName' });
+      user = await generateUser({ 'auth.local.username': 'GoogleUserName' });
 
       const response = await api.post(endpoint, {
         authResponse: { access_token: randomAccessToken }, // eslint-disable-line camelcase
