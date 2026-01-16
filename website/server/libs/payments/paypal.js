@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import logger from '../../logger';
+import logger from '../logger';
 import nconf from 'nconf';
 import moment from 'moment';
 import util from 'util';
