@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import logger from '../../logger';
 import nconf from 'nconf';
 import moment from 'moment';
 import util from 'util';
@@ -213,6 +214,7 @@ api.subscribeSuccess = async function subscribeSuccess (options = {}) {
     user, groupId, block, headers, token,
   } = options;
   const result = await this.paypalBillingAgreementExecute(token, {});
+  logger.info('PayPal Subscription', { state: result.state, details: result.agreement_details });
   await payments.createSubscription({
     user,
     groupId,
