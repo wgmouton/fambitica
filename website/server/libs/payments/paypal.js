@@ -1,5 +1,4 @@
 /* eslint-disable camelcase */
-import logger from '../logger';
 import nconf from 'nconf';
 import moment from 'moment';
 import util from 'util';
@@ -7,6 +6,7 @@ import _ from 'lodash';
 import paypalIpn from 'pp-ipn';
 import paypal from 'paypal-rest-sdk';
 import cc from 'coupon-code';
+import logger from '../logger';
 import shared from '../../../common';
 import payments from './payments'; // eslint-disable-line import/no-cycle
 import { getGemsBlock, validateGiftMessage } from './gems'; // eslint-disable-line import/no-cycle
