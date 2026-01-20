@@ -3312,5 +3312,9 @@
     "armorArmoireYellowStripedSwimsuitNotes": "O que poderia ser mais agradável do que batalhar contra monstros marinhos na praia? Aumenta a Constituição em <%= con %>. Armário Encantado: Conjunto à beira-mar (Item 1 de 4).",
     "armorArmoireStormKnightArmorNotes": "Com esta armadura, você é praticamente invencível. Seus inimigos jamais verão o fim da tempestade. Aumenta a Percepção em <%= por %>. Armário Encantado: Conjunto Cavaleiro da Tempestade (Item 2 de 3)",
     "armorArmoireBlueStripedSwimsuitNotes": "O que poderia ser mais emocionante do que batalhar contra monstros marinhos na praia? Aumenta a Constituição em <%= con %>. Armário Encantado: Conjunto à beira-mar (Item 1 de 4).",
-    "armorArmoirePottersApronNotes": "Você veio preparado com as ferramentas do ofício. Ainda bem que você estava usando esse avental. Ele tem bolsos! Aumenta a Força em <%= str %>. Armário Encantado: Conjunto de Oleiro (Item 1 de 4)."
+    "armorArmoirePottersApronNotes": "Você veio preparado com as ferramentas do ofício. Ainda bem que você estava usando esse avental. Ele tem bolsos! Aumenta a Força em <%= str %>. Armário Encantado: Conjunto de Oleiro (Item 1 de 4).",
+    "armorArmoireBlackPartyDressNotes": "Você é forte, inteligente, caloroso e está tão na moda! Aumenta Força, Inteligência, e Constituição em <%= attrs %> cada. Armário Encantado: Conjunto Laço de Cabelo (Item 2 de 2).",
+    "armorArmoireLoneCowpokeOutfitText": "Traje de Vaqueiro Solitário",
+    "armorArmoireBlackPartyDressText": "Vestido de Festa Preto",
+    "armorArmoireSpringPetalYukataText": "Yukata de Pétalas de Primavera"
 }

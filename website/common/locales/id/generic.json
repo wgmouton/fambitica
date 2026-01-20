@@ -226,5 +226,22 @@
     "blockPlayer": "Blokir Pemain",
     "newMessage": "Pesan Baru",
     "unblockPlayer": "Buka blokir Pemain",
-    "viewAdminPanel": "Lihat Panel Admin"
+    "viewAdminPanel": "Lihat Panel Admin",
+    "mutePlayer": "Bisu",
+    "shadowMute": "Pembisuan Bayangan",
+    "questionDescriptionText": "Tidak masalah mengajukan pertanyaan dalam bahasa utama kamu jika kamu tidak nyaman menggunakan bahasa Inggris.",
+    "questionPlaceholder": "Masukkan pertanyaanmu disini",
+    "banPlayer": "Blokir akun Pemain",
+    "unbanPlayer": "Batalkan blokiran akun Pemain",
+    "bannedPlayer": "Pemain ini akunnya telah diblokir.",
+    "askQuestionHeaderDescribe": "Baru di Habitica dan belum tahu harus mulai dari mana? Sudah berpengalaman tapi masih bingung cara menggunakan salah satu fitur? Isi formulir ini dan tim kami akan menghubungimu kembali.",
+    "questionEmailText": "Data ini hanya akan digunakan untuk menghubungimu terkait pertanyaanmu.",
+    "question": "Pertanyaan",
+    "playerReportModalBody": "Kamu hanya boleh melaporkan pemain yang melanggar <%= firstLinkStart %>Peraturan Komunitas<%= linkEnd %>dan/atau <%= secondLinkStart %> Persyaratan Layanan<%= linkEnd %>. Mengajukan laporan palsu adalah pelanggaran Peraturan Komunitas Habitica.",
+    "rememberToBeKind": "Harap selalu bersikap baik, saling menghormati, dan mematuhi <a href='/static/community-guidelines' target='_blank'>Peraturan Komunitas</a>.",
+    "whyReportingPlayerPlaceholder": "Alasan untuk melapor",
+    "whyReportingPlayer": "Mengapa kamu melaporkan pemain ini?",
+    "confirmPurchase": "Konfirmasi Pembelian",
+    "submitQuestion": "Kirim pertanyaan",
+    "targetUserNotExist": "Pengguna target: ‘<%= userName %>’ tidak ditemukan."
 }
