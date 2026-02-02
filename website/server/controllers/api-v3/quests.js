@@ -627,6 +627,8 @@ api.abortQuest = {
       'party._id': groupId,
     }, Group.cleanQuestParty()).exec();
 
+    const questKey = group.quest.key
+
     const questLeaderUpdate = User.updateOne({
       _id: group.quest.leader,
     }, {

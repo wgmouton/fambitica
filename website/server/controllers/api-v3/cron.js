@@ -1,5 +1,5 @@
 import { authWithHeaders } from '../../middlewares/auth';
-import { cronWrapper } from '../../libs/cron';
+import { cronWrapper, cronTeamsWrapper } from '../../libs/cron';
 
 const api = {};
 
@@ -22,5 +22,16 @@ api.cron = {
     res.respond(200, {});
   },
 };
+
+api.cronTream = {
+  method: 'POST',
+  url: '/cron/team',
+  middlewares: [authWithHeaders()],
+  async handler (req, res) {
+    await cronTeamsWrapper(req, res);
+    res.respond(200, {});
+  },
+};
+
 
 export default api;

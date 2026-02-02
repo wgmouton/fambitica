@@ -443,6 +443,21 @@
               />
             </div>
           </div>
+          <!-- <div class="form-group row mt-3 mb-3">
+            <label
+              v-once
+              class="col-10 mb-1"
+            >All assigned must complete</label>
+            <div class="col-12">
+              <checkbox
+                v-if="!disableEdit"
+                :id="`completeByAll`"
+                :disabled="disabled"
+                class="input-group-prepend"
+                :class="{'cursor-auto': disabled}"
+              />
+            </div>
+          </div> -->
         </div>
         <div
           v-if="advancedSettingsAvailable"
@@ -1132,12 +1147,14 @@ export default {
         && this.purpose === 'edit';
     },
     advancedSettingsShowTaskAlias () {
-      return this.isUserTask && this.user.preferences.developerMode;
+      return true
+      // return this.isUserTask && this.user.preferences.developerMode;
     },
     advancedSettingsAvailable () {
-      return this.advancedSettingsShowRestoreStreak
-          || this.advancedSettingsShowAdjustCounter
-          || this.advancedSettingsShowTaskAlias;
+      return true
+      // return this.advancedSettingsShowRestoreStreak
+      //     || this.advancedSettingsShowAdjustCounter
+      //     || this.advancedSettingsShowTaskAlias;
     },
     // endregion advanced settings
     checklistEnabled () {

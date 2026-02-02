@@ -9,10 +9,14 @@ import { preenUserHistory } from './preening';
 import { revealMysteryItems } from './payments/subscriptions';
 import { model as UserHistory } from '../models/userHistory';
 
+const TASK_VALUE_CHANGE_FACTOR = 0.9747;
+const MIN_TASK_VALUE = -47.27;
+
 const CRON_SAFE_MODE = nconf.get('CRON_SAFE_MODE') === 'true';
 const CRON_SEMI_SAFE_MODE = nconf.get('CRON_SEMI_SAFE_MODE') === 'true';
 const { MAX_INCENTIVES } = common.constants;
 const {
+  daysSince,
   shouldDo,
   i18n,
   getPlanContext,
@@ -447,6 +451,103 @@ async function checkForActiveCron (user, now, session) {
     throw new Error('CRON_ALREADY_RUNNING');
   }
 }
+
+export async function cronTeamsWrapper(req, res) {
+  const activeTeams = await Group.find({
+    $or: [
+      { "purchased.plan.dateTerminated": { $exists: false } },
+      { "purchased.plan.dateTerminated": null },
+      { "purchased.plan.dateTerminated": { $gt: new Date() } },
+    ],
+  }).exec();
+
+  const cronPromises = activeTeams.map(processTeamsCron);
+  return Promise.all(cronPromises);
+};
+
+async function processTeamsCron (team) {
+  const toSave = [];
+  let teamLeader = await User.findOne({ _id: team.leader }, 'preferences').exec();
+
+  if (!teamLeader) { // why would this happen?
+    teamLeader = {
+      preferences: { }, // when options are sanitized this becomes CDS 0 at UTC
+    };
+  }
+
+  // if (
+  //   !team.cron || !team.cron.lastProcessed
+  //   || daysSince(team.cron.lastProcessed, teamLeader.preferences) > 0
+  // ) {
+  const tasks = await Tasks.Task.find({
+    'group.id': team._id,
+    userId: { $exists: false },
+    $or: [
+      { type: 'todo', completed: false },
+      { type: { $in: ['habit', 'daily'] } },
+    ],
+  }).exec();
+
+  const tasksByType = {
+    habits: [], dailys: [], todos: [], rewards: [],
+  };
+  tasks.forEach(task => tasksByType[`${task.type}s`].push(task));
+
+  tasksByType.habits.forEach(habit => {
+    if (!(habit.up && habit.down) && habit.value !== 0) {
+      habit.value *= 0.5;
+      if (Math.abs(habit.value) < 0.1) habit.value = 0;
+      toSave.push(habit.save());
+    }
+  });
+  tasksByType.todos.forEach(todo => {
+    if (!todo.completed) {
+      const delta = TASK_VALUE_CHANGE_FACTOR ** todo.value;
+      todo.value -= delta;
+      if (todo.value < MIN_TASK_VALUE) todo.value = MIN_TASK_VALUE;
+      toSave.push(todo.save());
+    }
+  });
+  tasksByType.dailys.forEach(daily => {
+    let processChecklist = false;
+    let assignments = 0;
+    let completions = 0;
+    for (const assignedUser in daily.group.assignedUsersDetail) {
+      if (Object.prototype.hasOwnProperty.call(daily.group.assignedUsersDetail, assignedUser)) {
+        assignments += 1;
+        if (daily.group.assignedUsersDetail[assignedUser].completed) {
+          completions += 1;
+          daily.group.assignedUsersDetail[assignedUser].completed = false;
+        }
+      }
+    }
+    if (completions > 0) daily.markModified('group.assignedUsersDetail');
+    if (daily.completed) {
+      processChecklist = true;
+      daily.completed = false;
+    } else if (shouldDo(team.cron.lastProcessed, daily, teamLeader.preferences)) {
+      processChecklist = true;
+      const delta = TASK_VALUE_CHANGE_FACTOR ** daily.value;
+      if (assignments > 0) {
+        daily.value -= ((completions / assignments) * delta);
+      }
+      if (daily.value < MIN_TASK_VALUE) daily.value = MIN_TASK_VALUE;
+    }
+    daily.isDue = shouldDo(new Date(), daily, teamLeader.preferences);
+    if (processChecklist && daily.checklist.length > 0) {
+      daily.checklist.forEach(i => { i.completed = false; });
+    }
+    toSave.push(daily.save());
+  });
+
+  if (!team.cron) team.cron = {};
+  team.cron.lastProcessed = new Date();
+  toSave.push(team.save());
+  // }
+
+  return Promise.all(toSave);
+}
+
 
 export async function cronWrapper (req, res) {
   const { user } = res.locals;

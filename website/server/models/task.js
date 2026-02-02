@@ -67,28 +67,32 @@ export const TaskSchema = new Schema({
   alias: {
     $type: String,
     match: [/^[a-zA-Z0-9-_]+$/, 'Task short names can only contain alphanumeric characters, underscores and dashes.'],
-    validate: [{
-      validator () {
-        return Boolean(this.userId);
-      },
-      msg: 'Task short names can only be applied to tasks in a user\'s own task list.',
-    }, {
-      validator (val) {
-        return !validator.isUUID(val);
-      },
-      msg: 'Task short names cannot be uuids.',
-    }, {
-      async validator (alias) {
-        const taskDuplicated = await Task.findOne({ // eslint-disable-line no-use-before-define
-          _id: { $ne: this._id },
-          userId: this.userId,
-          alias,
-        }).exec();
+    validate: [
+      // {
+      //   validator () {
+      //     return Boolean(this.userId);
+      //   },
+      //   msg: 'Task short names can only be applied to tasks in a user\'s own task list.',
+      // },
+      {
+        validator (val) {
+          return !validator.isUUID(val);
+        },
+        msg: 'Task short names cannot be uuids.',
+      }, 
+      {
+        async validator (alias) {
+          const taskDuplicated = await Task.findOne({ // eslint-disable-line no-use-before-define
+            _id: { $ne: this._id },
+            userId: this.userId,
+            alias,
+          }).exec();
 
-        return !taskDuplicated;
-      },
-      msg: 'Task alias already used on another task.',
-    }],
+          return !taskDuplicated;
+        },
+        msg: 'Task alias already used on another task.',
+      }
+    ],
   },
   tags: [{
     $type: String,
@@ -146,6 +150,7 @@ export const TaskSchema = new Schema({
       userId: { $type: String, ref: 'User', validate: [v => validator.isUUID(v), 'Invalid uuid for task completing user.'] },
       date: { $type: Date },
     },
+    completeByAll: { $type: Boolean, default: true }
   },
 
   reminders: [reminderSchema],
