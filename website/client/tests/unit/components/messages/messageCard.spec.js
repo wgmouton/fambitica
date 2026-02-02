@@ -1,14 +1,19 @@
+import {
+  describe, expect, test, beforeEach,
+} from 'vitest';
 import Vue from 'vue';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
-import ChatCard from '@/components/chat/chatCard.vue';
+import BootstrapVue from 'bootstrap-vue';
+import MessageCard from '@/components/messages/messageCard.vue';
 import Store from '@/libs/store';
 
 const localVue = createLocalVue();
 localVue.use(Store);
 localVue.use(Vue.directive('b-tooltip', {}));
+localVue.use(BootstrapVue);
 
-describe('ChatCard', () => {
+describe('MessageCard', () => {
   function createMessage (text) {
     return { text, likes: {} };
   }
@@ -26,7 +31,7 @@ describe('ChatCard', () => {
   let wrapper;
 
   beforeEach(() => {
-    wrapper = shallowMount(ChatCard, {
+    wrapper = shallowMount(MessageCard, {
       propsData: { msg: message },
       store: new Store({
         state: {
@@ -40,19 +45,19 @@ describe('ChatCard', () => {
     });
   });
 
-  it('shows the message text', () => {
+  test('shows the message text', () => {
     expect(wrapper.find('div.text').text()).to.equal(message.text);
     expect(wrapper.find('div.mentioned-icon').exists()).to.be.false;
   });
 
-  it('shows mention dot if user is mentioned', () => {
+  test('shows mention dot if user is mentioned', () => {
     wrapper.setProps({ msg: createMessage('@Tester') });
 
     expect(wrapper.find('div.mentioned-icon').exists()).to.be.true;
   });
 
   // Bug fixed by https://github.com/HabitRPG/habitica/pull/12177
-  it('shows mention dot if user is mentioned after almostmention', () => {
+  test('shows mention dot if user is mentioned after almostmention', () => {
     wrapper.setProps({ msg: createMessage('thetester @Tester') });
 
     expect(wrapper.find('div.mentioned-icon').exists()).to.be.true;

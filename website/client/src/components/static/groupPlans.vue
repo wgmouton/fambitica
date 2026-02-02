@@ -27,7 +27,9 @@
         <div class="top-right"></div>
         <div class="d-flex justify-content-between align-items-middle w-100 gap-72 mb-100">
           <div class="ml-auto my-auto w-448 text-left">
-            <h2 class="mt-0">{{ $t('teamBasedTasksList') }}</h2>
+            <h2 class="mt-0">
+              {{ $t('teamBasedTasksList') }}
+            </h2>
             <p>{{ $t('teamBasedTasksListDesc') }}</p>
           </div>
           <div class="mr-auto my-auto">
@@ -39,17 +41,25 @@
             <img src="../../assets/images/group-plans-static/team-based@3x.png">
           </div>
           <div class="mr-auto my-auto w-448 text-left">
-            <h2 class="mt-0">{{ $t('groupManagementControls') }}</h2>
+            <h2 class="mt-0">
+              {{ $t('groupManagementControls') }}
+            </h2>
             <p>{{ $t('groupManagementControlsDesc') }}</p>
           </div>
         </div>
         <div class="text-center mb-128">
           <div class="bot-left"></div>
           <div class="col-6 offset-3">
-            <h2 class="purple-300 mt-0 mb-4" v-if="upgradingGroup._id">
+            <h2
+              v-if="upgradingGroup._id"
+              class="purple-300 mt-0 mb-4"
+            >
               {{ $t('readyToUpgrade') }}
             </h2>
-            <h2 v-else class="purple-300 mt-0 mb-4">
+            <h2
+              v-else
+              class="purple-300 mt-0 mb-4"
+            >
               {{ $t('createGroupToday') }}
             </h2>
             <div class="text-center mb-3">
@@ -81,8 +91,13 @@
       class="bottom-banner text-center"
       :class="{ static: isStaticPage }"
     >
-      <h2 class="white">{{ $t('interestedLearningMore') }}</h2>
-      <p class="purple-600" v-html="$t('checkGroupPlanFAQ')"></p>
+      <h2 class="white">
+        {{ $t('interestedLearningMore') }}
+      </h2>
+      <p
+        class="purple-600"
+        v-html="$t('checkGroupPlanFAQ')"
+      ></p>
     </div>
   </div>
 </template>
@@ -100,7 +115,7 @@
 
 <style lang='scss' scoped>
   @import url('https://fonts.googleapis.com/css?family=Varela+Round');
-  @import '~@/assets/scss/colors.scss';
+  @import '@/assets/scss/colors.scss';
 
   // General typography tweaks
 

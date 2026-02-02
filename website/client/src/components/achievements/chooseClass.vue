@@ -95,7 +95,11 @@
               @click="clickDisableClasses(); close();"
             >{{ $t('optOutOfClasses') }}</span>
           </div>
-          <span class="opt-out-description">{{ $t('optOutOfClassesText') }}</span>
+          <div
+            v-once
+            class="opt-out-description"
+            v-html="$t('optOutOfClassesText')"
+          ></div>
         </div>
       </div>
     </div>
@@ -103,7 +107,7 @@
 </template>
 
 <style lang="scss" scoped>
-  @import '~@/assets/scss/colors.scss';
+  @import '@/assets/scss/colors.scss';
 
   .btn-primary:active {
       border: 2px solid $purple-400 !important;
@@ -189,10 +193,10 @@
 import Avatar from '../avatar';
 import { mapState } from '@/libs/store';
 import markdownDirective from '@/directives/markdown';
-import warriorIcon from '@/assets/svg/warrior.svg';
-import rogueIcon from '@/assets/svg/rogue.svg';
-import healerIcon from '@/assets/svg/healer.svg';
-import wizardIcon from '@/assets/svg/wizard.svg';
+import warriorIcon from '@/assets/svg/warrior.svg?raw';
+import rogueIcon from '@/assets/svg/rogue.svg?raw';
+import healerIcon from '@/assets/svg/healer.svg?raw';
+import wizardIcon from '@/assets/svg/wizard.svg?raw';
 
 export default {
   components: {

@@ -313,6 +313,7 @@ export const UserSchema = new Schema({
     warnedLowHealth: { $type: Boolean, default: false },
     verifiedUsername: { $type: Boolean, default: false },
     thirdPartyTools: { $type: Date },
+    initializedUserHistory: { $type: Boolean, default: false },
   },
 
   history: {
@@ -495,6 +496,7 @@ export const UserSchema = new Schema({
     orderAscending: { $type: String, default: 'ascending' },
     quest: {
       key: String,
+      details: { $type: Schema.Types.Mixed, default: {} },
       progress: {
         up: { $type: Number, default: 0 },
         down: { $type: Number, default: 0 },

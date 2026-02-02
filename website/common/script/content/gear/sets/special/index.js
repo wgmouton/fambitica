@@ -791,6 +791,30 @@ const armor = {
   winter2025Rogue: {
     set: 'winter2025SnowRogueSet',
   },
+  spring2025Warrior: {
+    set: 'spring2025SunshineWarriorSet',
+  },
+  spring2025Rogue: {
+    set: 'spring2025CrystalPointRogueSet',
+  },
+  spring2025Healer: {
+    set: 'spring2025PlumeriaHealerSet',
+  },
+  spring2025Mage: {
+    set: 'spring2025MantisMageSet',
+  },
+  summer2025Warrior: {
+    set: 'summer2025ScallopWarriorSet',
+  },
+  summer2025Rogue: {
+    set: 'summer2025SquidRogueSet',
+  },
+  summer2025Healer: {
+    set: 'summer2025SeaAngelHealerSet',
+  },
+  summer2025Mage: {
+    set: 'summer2025FairyWrasseMageSet',
+  },
 };
 
 const armorStats = {
@@ -1892,6 +1916,30 @@ const head = {
   winter2025Rogue: {
     set: 'winter2025SnowRogueSet',
   },
+  spring2025Warrior: {
+    set: 'spring2025SunshineWarriorSet',
+  },
+  spring2025Rogue: {
+    set: 'spring2025CrystalPointRogueSet',
+  },
+  spring2025Healer: {
+    set: 'spring2025PlumeriaHealerSet',
+  },
+  spring2025Mage: {
+    set: 'spring2025MantisMageSet',
+  },
+  summer2025Warrior: {
+    set: 'summer2025ScallopWarriorSet',
+  },
+  summer2025Rogue: {
+    set: 'summer2025SquidRogueSet',
+  },
+  summer2025Healer: {
+    set: 'summer2025SeaAngelHealerSet',
+  },
+  summer2025Mage: {
+    set: 'summer2025FairyWrasseMageSet',
+  },
 };
 
 const headStats = {
@@ -2591,6 +2639,28 @@ const shield = {
   winter2025Rogue: {
     set: 'winter2025SnowRogueSet',
   },
+  spring2025Warrior: {
+    set: 'spring2025SunshineWarriorSet',
+  },
+  spring2025Rogue: {
+    set: 'spring2025CrystalPointRogueSet',
+    text: t('shieldSpecialSpring2025RogueText'),
+    notes: t('shieldSpecialSpring2025RogueNotes', { str: 8 }),
+  },
+  spring2025Healer: {
+    set: 'spring2025PlumeriaHealerSet',
+  },
+  summer2025Warrior: {
+    set: 'summer2025ScallopWarriorSet',
+  },
+  summer2025Rogue: {
+    set: 'summer2025SquidRogueSet',
+    text: t('shieldSpecialSummer2025RogueText'),
+    notes: t('shieldSpecialSummer2025RogueNotes', { str: 8 }),
+  },
+  summer2025Healer: {
+    set: 'summer2025SeaAngelHealerSet',
+  },
 };
 
 const shieldStats = {
@@ -3281,6 +3351,30 @@ const weapon = {
   },
   winter2025Rogue: {
     set: 'winter2025SnowRogueSet',
+  },
+  spring2025Warrior: {
+    set: 'spring2025SunshineWarriorSet',
+  },
+  spring2025Rogue: {
+    set: 'spring2025CrystalPointRogueSet',
+  },
+  spring2025Healer: {
+    set: 'spring2025PlumeriaHealerSet',
+  },
+  spring2025Mage: {
+    set: 'spring2025MantisMageSet',
+  },
+  summer2025Warrior: {
+    set: 'summer2025ScallopWarriorSet',
+  },
+  summer2025Rogue: {
+    set: 'summer2025SquidRogueSet',
+  },
+  summer2025Healer: {
+    set: 'summer2025SeaAngelHealerSet',
+  },
+  summer2025Mage: {
+    set: 'summer2025FairyWrasseMageSet',
   },
 };
 

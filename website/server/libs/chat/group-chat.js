@@ -6,7 +6,7 @@ import { // eslint-disable-line import/no-cycle
   MAX_SUBBED_GROUP_CHAT_COUNT,
 } from '../../models/group';
 
-const questScrolls = shared.content.quests;
+// const questScrolls = shared.content.quests;
 
 // @TODO: Don't use this method when the group can be saved.
 export async function getGroupChat (group) {
@@ -41,33 +41,33 @@ export function translateMessage (lang, info) {
 
   switch (info.type) { // eslint-disable-line default-case
     case 'quest_start':
-      msg = shared.i18n.t('chatQuestStarted', { questName: questScrolls[info.quest].text(lang) }, lang);
+      msg = shared.i18n.t('chatQuestStarted', { questName: info.quest.text }, lang);
       break;
 
     case 'boss_damage':
       msg = shared.i18n.t('chatBossDamage', {
         username: info.user,
-        bossName: questScrolls[info.quest].boss.name(lang),
+        bossName: info.quest.boss.name(lang),
         userDamage: info.userDamage,
         bossDamage: info.bossDamage,
       }, lang);
       break;
 
     case 'boss_dont_attack':
-      msg = shared.i18n.t('chatBossDontAttack', { username: info.user, bossName: questScrolls[info.quest].boss.name(lang), userDamage: info.userDamage }, lang);
+      msg = shared.i18n.t('chatBossDontAttack', { username: info.user, bossName: info.quest.boss.name(lang), userDamage: info.userDamage }, lang);
       break;
 
     case 'boss_rage':
-      msg = questScrolls[info.quest].boss.rage.effect(lang);
+      msg = info.quest.boss.rage.effect(lang);
       break;
 
     case 'boss_defeated':
-      msg = shared.i18n.t('chatBossDefeated', { bossName: questScrolls[info.quest].boss.name(lang) }, lang);
+      msg = shared.i18n.t('chatBossDefeated', { bossName: info.quest.boss.name(lang) }, lang);
       break;
 
     case 'user_found_items':
       foundText = _.reduce(info.items, (m, v, k) => {
-        m.push(`${v} ${questScrolls[info.quest].collect[k].text(lang)}`);
+        m.push(`${v} ${info.quest.collect[k].text(lang)}`);
         return m;
       }, []).join(', ');
       msg = shared.i18n.t('chatFindItems', { username: info.user, items: foundText }, lang);
@@ -99,27 +99,27 @@ export function translateMessage (lang, info) {
       break;
 
     case 'quest_cancel':
-      msg = shared.i18n.t('chatQuestCancelled', { username: info.user, questName: questScrolls[info.quest].text(lang) }, lang);
+      msg = shared.i18n.t('chatQuestCancelled', { username: info.user, questName: info.quest.text }, lang);
       break;
 
     case 'quest_abort':
-      msg = shared.i18n.t('chatQuestAborted', { username: info.user, questName: questScrolls[info.quest].text(lang) }, lang);
+      msg = shared.i18n.t('chatQuestAborted', { username: info.user, questName: info.quest.text }, lang);
       break;
 
     case 'tavern_quest_completed':
-      msg = quests[info.quest].completionChat(lang);
+      msg = info.quest.completionChat(lang);
       break;
 
     case 'tavern_boss_rage_tired':
-      msg = shared.i18n.t('tavernBossTired', { rageName: quests[info.quest].boss.rage.title(lang), bossName: quests[info.quest].boss.name(lang) }, lang);
+      msg = shared.i18n.t('tavernBossTired', { rageName: info.quest.boss.rage.title(lang), bossName: info.quest.boss.name(lang) }, lang);
       break;
 
     case 'tavern_boss_rage':
-      msg = quests[info.quest].boss.rage[info.scene](lang);
+      msg = info.quest.boss.rage[info.scene](lang);
       break;
 
     case 'tavern_boss_desperation':
-      msg = quests[info.quest].boss.desperation.text(lang);
+      msg = info.quest.boss.desperation.text(lang);
       break;
 
     case 'claim_task':
@@ -128,10 +128,6 @@ export function translateMessage (lang, info) {
 
     default:
       msg = 'Error translating party chat. Unknown message type.';
-  }
-
-  if (!msg.includes('`')) {
-    msg = `\`${msg}\``;
   }
   return msg;
 }

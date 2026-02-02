@@ -148,7 +148,7 @@
 </template>
 
 <style lang="scss" scoped>
-  @import '~@/assets/scss/colors.scss';
+  @import '@/assets/scss/colors.scss';
 .footer-row {
   margin: 0;
   flex: 0 1 auto;
@@ -256,7 +256,7 @@ footer {
   background-color: $gray-500;
   color: $gray-50;
   padding: 32px 142px 40px;
-  a {
+  a, a:not([href]) {
     color: $gray-50;
   }
   a:hover {
@@ -583,12 +583,12 @@ import moment from 'moment';
 import Vue from 'vue';
 
 // images
-import melior from '@/assets/svg/melior.svg';
-import bluesky from '@/assets/svg/bluesky.svg';
-import facebook from '@/assets/svg/facebook.svg';
-import instagram from '@/assets/svg/instagram.svg';
-import tumblr from '@/assets/svg/tumblr.svg';
-import heart from '@/assets/svg/heart.svg';
+import melior from '@/assets/svg/melior.svg?raw';
+import bluesky from '@/assets/svg/bluesky.svg?raw';
+import facebook from '@/assets/svg/facebook.svg?raw';
+import instagram from '@/assets/svg/instagram.svg?raw';
+import tumblr from '@/assets/svg/tumblr.svg?raw';
+import heart from '@/assets/svg/heart.svg?raw';
 
 // components & modals
 import { mapState } from '@/libs/store';
@@ -596,12 +596,14 @@ import buyGemsModal from './payments/buyGemsModal.vue';
 import reportBug from '@/mixins/reportBug.js';
 import { worldStateMixin } from '@/mixins/worldState';
 
-const DEBUG_ENABLED = process.env.DEBUG_ENABLED === 'true'; // eslint-disable-line no-process-env
-const TIME_TRAVEL_ENABLED = process.env.TIME_TRAVEL_ENABLED === 'true'; // eslint-disable-line no-process-env
+const DEBUG_ENABLED = import.meta.env.DEBUG_ENABLED === 'true';
+const TIME_TRAVEL_ENABLED = import.meta.env.TIME_TRAVEL_ENABLED === 'true';
+
 let sinon;
-if (TIME_TRAVEL_ENABLED) {
-  // eslint-disable-next-line global-require
-  sinon = await import('sinon');
+if (import.meta.env.TIME_TRAVEL_ENABLED === 'true') {
+  (async () => {
+    sinon = await import('sinon');
+  })();
 }
 
 export default {
@@ -689,24 +691,28 @@ export default {
     },
     async jumpTime (amount) {
       const response = await axios.post('/api/v4/debug/jump-time', { offsetDays: amount });
-      if (amount > 0) {
-        Vue.config.clock.jump(amount * 24 * 60 * 60 * 1000);
-      } else {
-        Vue.config.clock.setSystemTime(moment().add(amount, 'days').toDate());
-      }
-      this.lastTimeJump = response.data.data.time;
-      this.triggerGetWorldState(true);
+      setTimeout(() => {
+        if (amount > 0) {
+          Vue.config.clock.jump(amount * 24 * 60 * 60 * 1000);
+        } else {
+          Vue.config.clock.setSystemTime(moment().add(amount, 'days').toDate());
+        }
+        this.lastTimeJump = response.data.data.time;
+        this.triggerGetWorldState(true);
+      }, 1000);
     },
     async resetTime () {
       const response = await axios.post('/api/v4/debug/jump-time', { reset: true });
       const time = new Date(response.data.data.time);
-      Vue.config.clock.restore();
-      Vue.config.clock = sinon.useFakeTimers({
-        now: time,
-        shouldAdvanceTime: true,
-      });
-      this.lastTimeJump = response.data.data.time;
-      this.triggerGetWorldState(true);
+      setTimeout(() => {
+        Vue.config.clock.restore();
+        Vue.config.clock = sinon.useFakeTimers({
+          now: time,
+          shouldAdvanceTime: true,
+        });
+        this.lastTimeJump = response.data.data.time;
+        this.triggerGetWorldState(true);
+      }, 1000);
     },
     addExp () {
       // @TODO: Name these variables better
@@ -734,7 +740,6 @@ export default {
     async bossRage () {
       await axios.post('/api/v4/debug/boss-rage');
     },
-
     async makeAdmin () {
       await axios.post('/api/v4/debug/make-admin');
       // @TODO: Notification.text('You are now an admin!
@@ -743,6 +748,9 @@ export default {
     },
     donate () {
       this.$root.$emit('bv::show::modal', 'buy-gems', { alreadyTracked: true });
+    },
+    showBailey () {
+      this.$root.$emit('bv::show::modal', 'new-stuff');
     },
   },
 };

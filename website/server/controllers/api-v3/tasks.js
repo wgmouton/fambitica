@@ -408,7 +408,7 @@ api.getUserTasks = {
  * @apiName GetChallengeTasks
  * @apiGroup Task
  *
- * @apiParam (Path) {UUID} challengeId The id of the challenge from which to retrieve the tasks
+ * @apiPafam (Path) {UUID} challengeId The id of the challenge from which to retrieve the tasks
  * @apiParam (Query) {String="habits","dailys","todos","rewards"} [type] Query parameter to return
  *                                                                       just a type of tasks.
  *

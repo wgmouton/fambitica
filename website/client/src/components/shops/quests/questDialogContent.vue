@@ -2,8 +2,8 @@
   <div class="quest-content">
     <Sprite
       class="quest-image"
-      :image-name="item.purchaseType === 'bundles'
-      ? `quest_bundle_${item.key}` : `quest_${item.key}`"
+      :url="item.purchaseType === 'bundles' ? '' : item.image"
+      :image-name="item.purchaseType === 'bundles' ? `quest_bundle_${item.key}` : `quest_${item.key}`"
     />
     <h3 class="text-center">
       {{ itemText }}
@@ -30,7 +30,7 @@
 </template>
 
 <style lang="scss" scoped>
-  @import '~@/assets/scss/colors.scss';
+  @import '@/assets/scss/colors.scss';
 
   h3 {
     color: $gray-10;
@@ -41,6 +41,7 @@
     margin: 0 auto;
     margin-bottom: 16px;
     margin-top: 24px;
+    width: 100%;
     display: block;
   }
 

@@ -37,6 +37,7 @@ import stripePayments from '../libs/payments/stripe'; // eslint-disable-line imp
 import { getGroupChat, translateMessage } from '../libs/chat/group-chat'; // eslint-disable-line import/no-cycle
 import { model as UserNotification } from './userNotification';
 import { sendChatPushNotifications } from '../libs/chat'; // eslint-disable-line import/no-cycle
+import { model as UserHistory } from './userHistory'; // eslint-disable-line import/no-cycle
 
 const questScrolls = shared.content.quests;
 const { questSeriesAchievements } = shared.content;
@@ -96,6 +97,7 @@ export const schema = new Schema({
   leaderMessage: String,
   quest: {
     key: String,
+    details: { $type: Object, default: false },
     active: { $type: Boolean, default: false },
     leader: { $type: String, ref: 'User' },
     progress: {
@@ -195,6 +197,7 @@ function _cleanQuestParty (merge) {
   const updates = {
     $set: {
       'party.quest.key': null,
+      'party.quest.details': null,
       'party.quest.completed': null,
       'party.quest.RSVPNeeded': false,
     },
@@ -358,7 +361,11 @@ schema.statics.toJSONCleanChat = async function groupToJSONCleanChat (group, use
     .map(chatMsg => {
       // Translate system messages
       if (!_.isEmpty(chatMsg.info)) {
-        chatMsg.text = translateMessage(userLang, chatMsg.info);
+        chatMsg.unformattedText = translateMessage(userLang, chatMsg.info);
+        chatMsg.text = chatMsg.unformattedText;
+        if (!chatMsg.text.includes('`')) {
+          chatMsg.text = `\`${chatMsg.text}\``;
+        }
       }
 
       // Convert to timestamps because Android expects it
@@ -515,11 +522,19 @@ schema.methods.isMember = function isGroupMember (user) {
   return user.guilds.indexOf(this._id) !== -1;
 };
 
-schema.methods.getMemberCount = async function getMemberCount () {
+schema.methods.getMemberCount = async function getMemberCount (options) {
+  let excludeUserId = null;
+  if (options && options.excludeUserId) {
+    excludeUserId = options.excludeUserId;
+  }
   let query = { guilds: this._id };
 
   if (this.type === 'party') {
     query = { 'party._id': this._id };
+  }
+
+  if (excludeUserId) {
+    query._id = { $ne: excludeUserId };
   }
 
   return User.countDocuments(query).exec();
@@ -660,7 +675,7 @@ schema.methods.startQuest = async function startQuest (user) {
   if (this.quest.active) throw new InternalServerError('Quest is already active');
 
   const userIsParticipating = this.quest.members[user._id];
-  const quest = questScrolls[this.quest.key];
+  const quest = this.quest.details;
   let collected = {};
   if (quest.collect) {
     collected = _.transform(quest.collect, (result, n, itemToCollect) => {
@@ -678,7 +693,7 @@ schema.methods.startQuest = async function startQuest (user) {
   }
 
   const nonMembers = Object.keys(_.pickBy(this.quest.members, member => !member));
-
+  const noResponseMembers = Object.keys(_.pickBy(this.quest.members, member => member === null));
   // Changes quest.members to only include participating members
   this.quest.members = _.pickBy(this.quest.members, _.identity);
 
@@ -711,6 +726,7 @@ schema.methods.startQuest = async function startQuest (user) {
 
   if (userIsParticipating) {
     user.party.quest.key = this.quest.key;
+    user.party.quest.details = this.quest.details;
     user.party.quest.progress.down = 0;
     user.party.quest.completed = null;
     user.markModified('party.quest');
@@ -719,17 +735,17 @@ schema.methods.startQuest = async function startQuest (user) {
   const promises = [];
 
   // Remove the quest from the quest leader items (if they are the current user)
-  if (this.quest.leader === user._id) {
-    user.items.quests[this.quest.key] -= 1;
-    user.markModified('items.quests');
-    promises.push(user.save());
-  } else { // another user is starting the quest, update the leader separately
-    promises.push(User.updateOne({ _id: this.quest.leader }, {
-      $inc: {
-        [`items.quests.${this.quest.key}`]: -1,
-      },
-    }).exec());
-  }
+  // if (this.quest.leader === user._id) {
+  //   user.items.quests[this.quest.key] -= 1;
+  //   user.markModified('items.quests');
+  //   promises.push(user.save());
+  // } else { // another user is starting the quest, update the leader separately
+  //   promises.push(User.updateOne({ _id: this.quest.leader }, {
+  //     $inc: {
+  //       [`items.quests.${this.quest.key}`]: -1,
+  //     },
+  //   }).exec());
+  // }
 
   // update the remaining users
   promises.push(User.updateMany({
@@ -737,6 +753,7 @@ schema.methods.startQuest = async function startQuest (user) {
   }, {
     $set: {
       'party.quest.key': this.quest.key,
+      'party.quest.details': this.quest.details,
       'party.quest.progress.down': 0,
       'party.quest.completed': null,
     },
@@ -750,38 +767,75 @@ schema.methods.startQuest = async function startQuest (user) {
     _id: { $in: nonMembers },
   }, _cleanQuestParty()).exec();
 
-  const newMessage = await this.sendChat({
-    message: `\`${shared.i18n.t('chatQuestStarted', { questName: quest.text('en') }, 'en')}\``,
-    metaData: {
-      participatingMembers: this.getParticipatingQuestMembers().join(', '),
-    },
-    info: {
-      type: 'quest_start',
-      quest: quest.key,
-    },
-  });
-  await newMessage.save();
+
+  // const newMessage = await this.sendChat({
+  //   message: `\`${shared.i18n.t('chatQuestStarted', { questName: quest.text('en') }, 'en')}\``,
+  //   metaData: {
+  //     participatingMembers: this.getParticipatingQuestMembers().join(', '),
+  //   },
+  //   info: {
+  //     type: 'quest_start',
+  //     questKey: questKey,
+  //     quest: quest,
+  //   },
+  // });
+  // await newMessage.save();
+
+  // noResponseMembers.forEach(member => {
+  //   UserHistory.beginUserHistoryUpdate(member)
+  //     .withQuestInviteResponse(this.quest.key, 'no response')
+  //     .commit();
+  // });
+
+  // const newMessage = await this.sendChat({
+  //   message: `\`${shared.i18n.t('chatQuestStarted', { questName: quest.text('en') }, 'en')}\``,
+  //   metaData: {
+  //     participatingMembers: this.getParticipatingQuestMembers().join(', '),
+  //   },
+  //   info: {
+  //     type: 'quest_start',
+  //     quest: quest.key,
+  //   },
+  // });
+  // await newMessage.save();
 
   const membersToEmail = [];
 
   // send notifications and webhooks in the background without blocking
-  await members.forEach(async member => {
-    if (member._id !== user._id) {
-      // send push notifications and filter users that disabled emails
-      if (member.preferences.emailNotifications.questStarted !== false) {
-        membersToEmail.push(member);
-      }
+  for (const member of members) {
+    if (member._id === user._id) {
+      // early "exit", saving one indention level
+      // eslint-disable-next-line no-continue
+      continue;
+    }
 
+//  HEAD
       // send push notifications and filter users that disabled emails
       if (member.preferences.pushNotifications.questStarted !== false) {
         const memberLang = member.preferences.language;
         await sendPushNotification(member, {
-          title: quest.text(memberLang),
+          title: quest.text, //(memberLang),
           message: shared.i18n.t('questStarted', memberLang),
           identifier: 'questStarted',
         });
       }
-    }
+// 
+    // add email to send if that user did not disabled this email
+    // if (member.preferences.emailNotifications.questStarted !== false) {
+    //   membersToEmail.push(member);
+    // }
+
+    // // send push notifications if that user did not disabled this notifications
+    // if (member.preferences.pushNotifications.questStarted !== false) {
+    //   const memberLang = member.preferences.language;
+    //   // eslint-disable-next-line no-await-in-loop
+    //   await sendPushNotification(member, {
+    //     title: quest.text(memberLang),
+    //     message: shared.i18n.t('questStarted', memberLang),
+    //     identifier: 'questStarted',
+    //   });
+//  upstream-fork/self-host
+    // }
 
     // Send webhooks
     questActivityWebhook.send(member, {
@@ -789,7 +843,7 @@ schema.methods.startQuest = async function startQuest (user) {
       group: this,
       quest,
     });
-  });
+  }
 
   // Send emails in bulk
   sendTxnEmail(membersToEmail, 'quest-started', [
@@ -1010,7 +1064,7 @@ schema.methods._processBossQuest = async function processBossQuest (options) {
   } = options;
 
   const group = this;
-  const quest = questScrolls[group.quest.key];
+  const quest = group.quest.details;
   const down = progress.down * quest.boss.str; // multiply by boss strength
   // Everyone takes damage
   const updates = {
@@ -1020,44 +1074,44 @@ schema.methods._processBossQuest = async function processBossQuest (options) {
 
   group.quest.progress.hp -= progress.up;
   if (CRON_SAFE_MODE || CRON_SEMI_SAFE_MODE) {
-    const groupMessage = await group.sendChat({
-      message: `\`${shared.i18n.t('chatBossDontAttack', { bossName: quest.boss.name('en') }, 'en')}\``,
-      info: {
-        type: 'boss_dont_attack',
-        user: user.profile.name,
-        quest: group.quest.key,
-        userDamage: progress.up.toFixed(1),
-      },
-    });
-    promises.push(groupMessage.save());
+    // const groupMessage = await group.sendChat({
+    //   message: `\`${shared.i18n.t('chatBossDontAttack', { bossName: quest.boss.name('en') }, 'en')}\``,
+    //   info: {
+    //     type: 'boss_dont_attack',
+    //     user: user.profile.name,
+    //     quest: group.quest.key,
+    //     userDamage: progress.up.toFixed(1),
+    //   },
+    // });
+    // promises.push(groupMessage.save());
   } else {
-    const groupMessage = await group.sendChat({
-      message: `\`${shared.i18n.t('chatBossDamage', {
-        username: user.profile.name, bossName: quest.boss.name('en'), userDamage: progress.up.toFixed(1), bossDamage: Math.abs(down).toFixed(1),
-      }, user.preferences.language)}\``,
-      info: {
-        type: 'boss_damage',
-        user: user.profile.name,
-        quest: group.quest.key,
-        userDamage: progress.up.toFixed(1),
-        bossDamage: Math.abs(down).toFixed(1),
-      },
-    });
-    promises.push(groupMessage.save());
+    // const groupMessage = await group.sendChat({
+    //   message: `\`${shared.i18n.t('chatBossDamage', {
+    //     username: user.profile.name, bossName: quest.boss.name('en'), userDamage: progress.up.toFixed(1), bossDamage: Math.abs(down).toFixed(1),
+    //   }, user.preferences.language)}\``,
+    //   info: {
+    //     type: 'boss_damage',
+    //     user: user.profile.name,
+    //     quest: group.quest.key,
+    //     userDamage: progress.up.toFixed(1),
+    //     bossDamage: Math.abs(down).toFixed(1),
+    //   },
+    // });
+    // promises.push(groupMessage.save());
   }
 
   // If boss has Rage, increment Rage as well
   if (quest.boss.rage) {
     group.quest.progress.rage += Math.abs(down);
     if (group.quest.progress.rage >= quest.boss.rage.value) {
-      const rageMessage = await group.sendChat({
-        message: quest.boss.rage.effect('en'),
-        info: {
-          type: 'boss_rage',
-          quest: quest.key,
-        },
-      });
-      promises.push(rageMessage.save());
+      // const rageMessage = await group.sendChat({
+      //   message: quest.boss.rage.effect('en'),
+      //   info: {
+      //     type: 'boss_rage',
+      //     quest: quest.key,
+      //   },
+      // });
+      // promises.push(rageMessage.save());
       group.quest.progress.rage = 0;
 
       // TODO To make Rage effects more expandable,
@@ -1093,14 +1147,14 @@ schema.methods._processBossQuest = async function processBossQuest (options) {
 
   // Boss slain, finish quest
   if (group.quest.progress.hp <= 0) {
-    const questFinishChat = await group.sendChat({
-      message: `\`${shared.i18n.t('chatBossDefeated', { bossName: quest.boss.name('en') }, 'en')}\``,
-      info: {
-        type: 'boss_defeated',
-        quest: quest.key,
-      },
-    });
-    promises.push(questFinishChat.save());
+    // const questFinishChat = await group.sendChat({
+    //   message: `\`${shared.i18n.t('chatBossDefeated', { bossName: quest.boss.name('en') }, 'en')}\``,
+    //   info: {
+    //     type: 'boss_defeated',
+    //     quest: quest.key,
+    //   },
+    // });
+    // promises.push(questFinishChat.save());
 
     // Participants: Grant rewards & achievements, finish quest
     await group.finishQuest(shared.content.quests[group.quest.key]);
@@ -1117,7 +1171,7 @@ schema.methods._processCollectionQuest = async function processCollectionQuest (
   } = options;
 
   const group = this;
-  const quest = questScrolls[group.quest.key];
+  const quest = group.quest.details;
   const itemsFound = {};
   Object.keys(quest.collect).forEach(item => {
     itemsFound[item] = 0;
@@ -1171,7 +1225,7 @@ schema.methods._processCollectionQuest = async function processCollectionQuest (
     });
 
     promises.push(allItemsFoundChat.save());
-  }
+  }processBossQuest
 
   return Promise.all(promises);
 };
@@ -1339,6 +1393,10 @@ schema.methods.leave = async function leaveGroup (user, keep = 'keep-all', keepC
   }
   */
 
+  if (group.purchased.plan.customerId) {
+    await payments.cancelGroupSubscriptionForUser(user, this);
+  }
+
   // only remove user from challenges if it's set to leave-challenges
   if (keepChallenges === 'leave-challenges') {
     const challenges = await Challenge.find({
@@ -1376,10 +1434,6 @@ schema.methods.leave = async function leaveGroup (user, keep = 'keep-all', keepC
     promises.push(User.updateOne({ _id: user._id }, userUpdate).exec());
 
     update.$unset = { [`quest.members.${user._id}`]: 1 };
-  }
-
-  if (group.purchased.plan.customerId) {
-    promises.push(payments.cancelGroupSubscriptionForUser(user, this));
   }
 
   // If user is the last one in group and group is private, delete it

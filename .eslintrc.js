@@ -7,5 +7,15 @@ module.exports = {
   rules: {
     'prefer-regex-literals': 'warn',
     'import/no-extraneous-dependencies': 'off',
+    'max-len': 'off',
+    'require-await': 'error',
   },
+  overrides: [
+    {
+      files: ['migrations/**', 'gulp/**'], // Or *.test.js
+      rules: {
+        'require-await': 'off',
+      },
+    },
+  ],
 };

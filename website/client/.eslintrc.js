@@ -3,11 +3,12 @@ module.exports = {
   root: true,
   env: {
     node: true,
+    es2021: true,
   },
   extends: [
     'habitrpg/lib/vue',
   ],
-  ignorePatterns: ['dist/', 'node_modules/'],
+  ignorePatterns: ['dist/', 'node_modules/', '*.d.ts'],
   rules: {
     'no-console': 'off',
     'no-debugger': 'off',
@@ -25,6 +26,7 @@ module.exports = {
     // maybe this can be turned on again once we switch to newer vue/vite
     // Important! process.env.XYZ should not be destructured
     'prefer-destructuring': 'off',
+    'max-len': 'off',
     'vue/html-self-closing': ['error', {
       html: {
         void: 'never',
@@ -38,8 +40,5 @@ module.exports = {
     'vue/component-tags-order': ['warn', {
       order: ['template', 'style', 'script'],
     }],
-  },
-  parserOptions: {
-    parser: 'babel-eslint',
   },
 };

@@ -511,6 +511,27 @@ const armor = {
     int: 6,
     set: 'snowyTrapperSet',
   },
+  springPetalYukata: {
+    con: 8,
+    str: 8,
+    set: 'springPetalSet',
+  },
+  sillyOrangeTuxedo: {
+    con: 12,
+    set: 'sillyTuxedoSet',
+  },
+  sillierBlueTuxedo: {
+    str: 12,
+    set: 'sillierTuxedoSet',
+  },
+  gildedKnightsPlate: {
+    per: 11,
+    set: 'gildedKnightSet',
+  },
+  beekeepersSuit: {
+    con: 12,
+    set: 'beekeepersSet',
+  },
 };
 
 const body = {
@@ -1049,6 +1070,24 @@ const head = {
     int: 14,
     set: 'fancyFloralSet',
   },
+  sillyOrangeTophat: {
+    str: 6,
+    con: 6,
+    set: 'sillyTuxedoSet',
+  },
+  sillierBlueTophat: {
+    str: 6,
+    con: 6,
+    set: 'sillierTuxedoSet',
+  },
+  gildedKnightsHelm: {
+    con: 11,
+    set: 'gildedKnightSet',
+  },
+  beekeepersHat: {
+    per: 12,
+    set: 'beekeepersSet',
+  },
 };
 
 const shield = {
@@ -1407,6 +1446,15 @@ const shield = {
   fancyFloralFan: {
     per: 14,
     set: 'fancyFloralSet',
+  },
+  springPetalUchiwa: {
+    int: 8,
+    per: 8,
+    set: 'springPetalSet',
+  },
+  beekeepersHive: {
+    str: 12,
+    set: 'beekeepersSet',
   },
 };
 
@@ -1914,6 +1962,14 @@ const weapon = {
   stormKnightAxe: {
     str: 11,
     set: 'stormKnightSet',
+  },
+  gildedKnightsSpear: {
+    str: 11,
+    set: 'gildedKnightSet',
+  },
+  beekeepersSmoker: {
+    int: 12,
+    set: 'beekeepersSet',
   },
 };
 

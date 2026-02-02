@@ -443,6 +443,21 @@
               />
             </div>
           </div>
+          <!-- <div class="form-group row mt-3 mb-3">
+            <label
+              v-once
+              class="col-10 mb-1"
+            >All assigned must complete</label>
+            <div class="col-12">
+              <checkbox
+                v-if="!disableEdit"
+                :id="`completeByAll`"
+                :disabled="disabled"
+                class="input-group-prepend"
+                :class="{'cursor-auto': disabled}"
+              />
+            </div>
+          </div> -->
         </div>
         <div
           v-if="advancedSettingsAvailable"
@@ -626,7 +641,7 @@
 </template>
 
 <style lang="scss">
-  @import '~@/assets/scss/colors.scss';
+  @import '@/assets/scss/colors.scss';
 
   #task-modal {
     a:not(.dropdown-item) {
@@ -928,7 +943,7 @@
 </style>
 
 <style lang="scss" scoped>
-  @import '~@/assets/scss/colors.scss';
+  @import '@/assets/scss/colors.scss';
 
   .gold {
     width: 1rem;
@@ -1055,14 +1070,14 @@ import lockableLabel from '@/components/tasks/modal-controls/lockableLabel';
 
 import syncTask from '../../mixins/syncTask';
 
-import positiveIcon from '@/assets/svg/positive.svg';
-import negativeIcon from '@/assets/svg/negative.svg';
-import streakIcon from '@/assets/svg/streak.svg';
-import deleteIcon from '@/assets/svg/delete.svg';
-import goldIcon from '@/assets/svg/gold.svg';
-import chevronIcon from '@/assets/svg/chevron.svg';
-import calendarIcon from '@/assets/svg/calendar.svg';
-import gripIcon from '@/assets/svg/grip.svg';
+import positiveIcon from '@/assets/svg/positive.svg?raw';
+import negativeIcon from '@/assets/svg/negative.svg?raw';
+import streakIcon from '@/assets/svg/streak.svg?raw';
+import deleteIcon from '@/assets/svg/delete.svg?raw';
+import goldIcon from '@/assets/svg/gold.svg?raw';
+import chevronIcon from '@/assets/svg/chevron.svg?raw';
+import calendarIcon from '@/assets/svg/calendar.svg?raw';
+import gripIcon from '@/assets/svg/grip.svg?raw';
 import InformationIcon from '@/components/ui/informationIcon.vue';
 
 export default {
@@ -1132,12 +1147,14 @@ export default {
         && this.purpose === 'edit';
     },
     advancedSettingsShowTaskAlias () {
-      return this.isUserTask && this.user.preferences.developerMode;
+      return true
+      // return this.isUserTask && this.user.preferences.developerMode;
     },
     advancedSettingsAvailable () {
-      return this.advancedSettingsShowRestoreStreak
-          || this.advancedSettingsShowAdjustCounter
-          || this.advancedSettingsShowTaskAlias;
+      return true
+      // return this.advancedSettingsShowRestoreStreak
+      //     || this.advancedSettingsShowAdjustCounter
+      //     || this.advancedSettingsShowTaskAlias;
     },
     // endregion advanced settings
     checklistEnabled () {

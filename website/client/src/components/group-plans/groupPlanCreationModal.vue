@@ -89,7 +89,7 @@
 </template>
 
 <style lang="scss" scoped>
-  @import '~@/assets/scss/colors.scss';
+  @import '@/assets/scss/colors.scss';
 
   h2 {
     color: $purple-300;
@@ -182,7 +182,7 @@
 
 </style>
 <style lang="scss">
-  @import '~@/assets/scss/mixins.scss';
+  @import '@/assets/scss/mixins.scss';
   #create-group {
     .modal-dialog {
       max-width: 448px;

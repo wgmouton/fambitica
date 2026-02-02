@@ -53,10 +53,16 @@ export default {
   computed: {
     ...mapState({ user: 'user.data' }),
     questData () {
-      return quests.quests[this.notification.data.quest];
+      if (this.notification.data.quest !== 'custom') {
+        return quests.quests[this.notification.data.quest];
+      }
+      return null;
     },
     questName () {
-      return this.questData.text();
+      if (typeof this.questData.text === 'function') {
+        return this.questData.text();
+      }
+      return this.questData.text;
     },
   },
   methods: {

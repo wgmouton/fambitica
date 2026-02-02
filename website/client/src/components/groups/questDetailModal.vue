@@ -151,7 +151,7 @@
 </template>
 
 <style lang='scss' scoped>
-  @import '~@/assets/scss/colors.scss';
+  @import '@/assets/scss/colors.scss';
 
   h2 {
     color: $purple-300;
@@ -308,7 +308,7 @@ import getItemInfo from '@/../../common/script/libs/getItemInfo';
 import { mapState } from '@/libs/store';
 import * as Analytics from '@/libs/analytics';
 
-import navigationBack from '@/assets/svg/navigation_back.svg';
+import navigationBack from '@/assets/svg/navigation_back.svg?raw';
 import questDialogContent from '../shops/quests/questDialogContent';
 import closeIcon from '../shared/closeIcon';
 import QuestRewards from '../shops/quests/questRewards';
@@ -347,6 +347,9 @@ export default {
   computed: {
     ...mapState({ user: 'user.data' }),
     questData () {
+      if (this.details) {
+        return this.details;
+      }
       return quests.quests[this.selectedQuest];
     },
     dialogClass () {
@@ -445,6 +448,7 @@ export default {
       if (selectQuestPayload) {
         this.selectMode = false;
         this.selectedQuest = selectQuestPayload.key;
+        this.details = selectQuestPayload.details;
       } else {
         this.selectMode = true;
       }
