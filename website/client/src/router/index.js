@@ -11,7 +11,6 @@ import { DEPRECATED_ROUTES } from '@/router/deprecated-routes';
 
 // NOTE: when adding a page make sure to implement the `common:setTitle` action
 
-const RegisterLoginReset = () => import(/* webpackChunkName: "auth" */'@/components/auth/registerLoginReset');
 const Logout = () => import(/* webpackChunkName: "auth" */'@/components/auth/logout');
 const Avatar = () => import(/* webpackChunkName: "avatar" */'@/components/avatar');
 
@@ -20,16 +19,14 @@ const HallPage = () => import(/* webpackChunkName: "hall" */'@/components/hall/i
 const PatronsPage = () => import(/* webpackChunkName: "hall" */'@/components/hall/patrons');
 const HeroesPage = () => import(/* webpackChunkName: "hall" */'@/components/hall/heroes');
 
-// Admin Panel
-const AdminPanelPage = () => import(/* webpackChunkName: "admin-panel" */'@/components/admin-panel');
-const AdminPanelUserPage = () => import(/* webpackChunkName: "admin-panel" */'@/components/admin-panel/user-support');
-const AdminPanelSearchPage = () => import(/* webpackChunkName: "admin-panel" */'@/components/admin-panel/search');
-
-// Except for tasks that are always loaded all the other main level
-// All the main level
-// components are loaded in separate webpack chunks.
-// See https://webpack.js.org/guides/code-splitting-async/
-// for docs
+// Admin Pages
+const AdminContainerPage = () => import(/* webpackChunkName: "admin-panel" */'@/components/admin/container');
+const AdminPanelPage = () => import(/* webpackChunkName: "admin-panel" */'@/components/admin/admin-panel');
+const AdminPanelUserPage = () => import(/* webpackChunkName: "admin-panel" */'@/components/admin/admin-panel/user-support');
+const AdminPanelSearchPage = () => import(/* webpackChunkName: "admin-panel" */'@/components/admin/admin-panel/search');
+const GroupAdminPage = () => import(/* webpackChunkName: "admin-panel" */'@/components/admin/groups');
+const GroupAdminGroupPage = () => import(/* webpackChunkName: "admin-panel" */'@/components/admin/groups/group-support');
+const BlockerPage = () => import(/* webpackChunkName: "admin-panel" */'@/components/admin/blocker');
 
 // Tasks
 const UserTasks = () => import(/* webpackChunkName: "userTasks" */'@/components/tasks/user');
@@ -102,17 +99,15 @@ const router = new VueRouter({
       name: 'login', path: '/login', component: RegisterLoginReset, meta: { requiresLogin: false },
     },
     { name: 'logout', path: '/logout', component: Logout },
-    {
-      name: 'resetPassword', path: '/reset-password', component: RegisterLoginReset, meta: { requiresLogin: false },
-    }, {
-      name: 'forgotPassword', path: '/forgot-password', component: RegisterLoginReset, meta: { requiresLogin: false },
-    },
     { name: 'tasks', path: '/', component: UserTasks },
     {
       name: 'userProfile',
       path: '/profile/:userId',
       props: true,
     },
+    { name: 'profile', path: '/user/profile' },
+    { name: 'stats', path: '/user/stats' },
+    { name: 'achievements', path: '/user/achievements' },
     {
       path: '/inventory',
       component: InventoryContainer,
@@ -218,32 +213,77 @@ const router = new VueRouter({
     },
 
     {
-      name: 'adminPanel',
-      path: '/admin-panel',
-      component: AdminPanelPage,
+      name: 'adminSection',
+      path: '/admin',
+      component: AdminContainerPage,
       meta: {
         privilegeNeeded: [ // any one of these is enough to give access
           'userSupport',
+          'accessControl',
         ],
       },
       children: [
         {
-          name: 'adminPanelSearch',
-          path: 'search/:userIdentifier',
-          component: AdminPanelSearchPage,
+          name: 'adminPanel',
+          path: 'panel',
+          component: AdminPanelPage,
           meta: {
-            privilegeNeeded: [
+            privilegeNeeded: [ // any one of these is enough to give access
               'userSupport',
             ],
           },
+          children: [
+            {
+              name: 'adminPanelSearch',
+              path: 'search/:userIdentifier',
+              component: AdminPanelSearchPage,
+              meta: {
+                privilegeNeeded: [
+                  'userSupport',
+                ],
+              },
+            },
+            {
+              name: 'adminPanelUser',
+              path: ':userIdentifier',
+              component: AdminPanelUserPage,
+              meta: {
+                privilegeNeeded: [
+                  'userSupport',
+                ],
+              },
+            },
+          ],
         },
         {
-          name: 'adminPanelUser',
-          path: ':userIdentifier',
-          component: AdminPanelUserPage,
+          name: 'groupAdmin',
+          path: 'groups',
+          component: GroupAdminPage,
           meta: {
-            privilegeNeeded: [
-              'userSupport',
+            privilegeNeeded: [ // any one of these is enough to give access
+              'groupSupport',
+            ],
+          },
+          children: [
+            {
+              name: 'groupAdminGroup',
+              path: ':groupId',
+              component: GroupAdminGroupPage,
+              meta: {
+                privilegeNeeded: [
+                  'groupsSupport',
+                ],
+              },
+            },
+          ],
+        },
+        {
+          name: 'blockers',
+          path: 'blockers',
+          component: BlockerPage,
+          meta: {
+            privilegeNeeded: [ // any one of these is enough to give access
+              'accessControl',
             ],
           },
         },
@@ -366,6 +406,10 @@ router.beforeEach(async (to, from, next) => {
     if (to.params.startingPage !== undefined) {
       startingPage = to.params.startingPage;
     }
+    // Check if there's a hash in the URL for stats or achievements
+    if (to.hash === '#stats' || to.hash === '#achievements') {
+      startingPage = to.hash.substring(1);
+    }
     if (from.name === null) {
       store.state.postLoadModal = `profile/${to.params.userId}`;
       return next({ name: 'tasks' });
@@ -386,10 +430,18 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if ((to.name === 'stats' || to.name === 'achievements' || to.name === 'profile') && from.name !== null) {
+    const userId = store.state.user.data._id;
+    let redirectPath = `/profile/${userId}`;
+    if (to.name === 'stats') {
+      redirectPath += '#stats';
+    } else if (to.name === 'achievements') {
+      redirectPath += '#achievements';
+    }
     router.app.$emit('habitica:show-profile', {
+      userId,
       startingPage: to.name,
       fromPath: from.path,
-      toPath: to.path,
+      toPath: redirectPath,
     });
     return null;
   }

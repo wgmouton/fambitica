@@ -13,9 +13,6 @@ import {
 } from 'bootstrap-vue';
 import Fragment from 'vue-fragment';
 import AppComponent from './app';
-import {
-  setup as setupAnalytics,
-} from '@/libs/analytics';
 import { setUpLogging } from '@/libs/logging';
 import router from './router/index';
 import getStore from './store';
@@ -50,7 +47,6 @@ Vue.use(CollapsePlugin);
 Vue.use(Fragment.Plugin);
 
 setUpLogging();
-setupAnalytics(); // just create queues for analytics, no scripts loaded at this time
 const store = getStore();
 
 if (import.meta.env.TIME_TRAVEL_ENABLED === 'true') {

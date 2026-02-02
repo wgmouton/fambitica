@@ -32,7 +32,7 @@
     "subGemName": "Subscriber Gems",
     "maxBuyGems": "You have bought all the Gems you can this month. More become available within the first three days of each month. Thanks for subscribing!",
     "timeTravelers": "Time Travelers",
-    "timeTravelersPopoverNoSubMobile": "Looks like you’ll need a Mystic Hourglass to open the time portal and summon the Mysterious Time Travelers.",
+    "timeTravelersPopoverNoSubMobile": "Subscribers receive a rare Mystic Hourglass every month to use in the Time Travelers Shop!",
     "timeTravelersPopover": "Your Mystic Hourglass has opened our time portal! Choose what you’d like us to fetch from the past or future.",
     "mysticHourglassNeededNoSub": "This item requires a Mystic Hourglass. You earn Mystic Hourglasses by being a Habitica subscriber.",
     "mysterySetNotFound": "Mystery set not found, or set already owned.",
@@ -175,6 +175,14 @@
     "mysterySet202504": "Elusive Yeti Set",
     "mysterySet202505": "Soaring Swallowtail Set",
     "mysterySet202506": "Solar Shine Set",
+    "mysterySet202507": "Spunky Skater Set",
+    "mysterySet202508": "Brilliant Blade Set",
+    "mysterySet202509": "Windswept Wanderer Set",
+    "mysterySet202510": "Gliding Ghoul Set",
+    "mysterySet202511": "Frost Warrior Set",
+    "mysterySet202512": "Cookie Champion Set",
+    "mysterySet202601": "Winter's Aegis Set",
+    "mysterySet202602": "Sakura Fox Set",
     "mysterySet301404": "Steampunk Standard Set",
     "mysterySet301405": "Steampunk Accessories Set",
     "mysterySet301703": "Peacock Steampunk Set",
@@ -264,5 +272,7 @@
     "unlockNGemsGift": "They'll unlock <strong><%= count %> Gems</strong> per month in the Market",
     "earn2GemsGift": "They'll earn <strong>+2 Gems</strong> every month they're subscribed",
     "maxGemCapGift": "They'll have the max <strong>Gem Cap</strong>",
-    "subscribeAgainContinueHourglasses": "Subscribe again to continue receiving Mystic Hourglasses"
+    "subscribeAgainContinueHourglasses": "Subscribe again to continue receiving Mystic Hourglasses",
+    "subscriptionBillingFYI": "Subscriptions automatically renew unless you cancel at least 24 hours before the end of the current period. You can manage your subscription from the Subscription tab in settings. Your account will be charged within 24 hours of your renewal date, at the same price you initially paid.",
+    "subscriptionBillingFYIShort": "Subscriptions automatically renew unless you cancel at least 24 hours before the end of the current period. Your account will be charged within 24 hours of your renewal date, at the same price you initially paid."
 }

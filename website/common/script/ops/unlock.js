@@ -1,4 +1,5 @@
 import get from 'lodash/get';
+import pick from 'lodash/pick';
 import setWith from 'lodash/setWith';
 import i18n from '../i18n';
 import { NotAuthorized, BadRequest } from '../libs/errors';
@@ -291,14 +292,16 @@ export default async function unlock (user, req = {}, analytics) {
   if (isFullSet) {
     paths.forEach(pathPart => purchaseItem(pathPart, setType, user));
 
-    if (isBackground) {
-      paths.forEach(pathPart => {
+    paths.forEach(pathPart => {
+      if (isBackground) {
         const [key, value] = splitPathItem(pathPart);
         const backgroundContent = content.backgroundsFlat[value];
         const itemInfo = getItemInfo(user, key, backgroundContent);
         removeItemByPath(user, itemInfo.path);
-      });
-    }
+      } else {
+        removeItemByPath(user, path);
+      }
+    });
   } else {
     const [key, value] = splitPathItem(path);
 
@@ -312,6 +315,8 @@ export default async function unlock (user, req = {}, analytics) {
         const backgroundContent = content.backgroundsFlat[value];
         const itemInfo = getItemInfo(user, 'background', backgroundContent);
         removeItemByPath(user, itemInfo.path);
+      } else {
+        removeItemByPath(user, path);
       }
     }
   }
@@ -321,6 +326,7 @@ export default async function unlock (user, req = {}, analytics) {
 
     if (analytics) {
       analytics.track('buy', {
+        user: pick(user, ['preferences', 'registeredThrough']),
         uuid: user._id,
         itemKey: path,
         itemType: 'customization',

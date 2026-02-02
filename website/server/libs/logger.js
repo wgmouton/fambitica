@@ -24,6 +24,29 @@ const _config = {
 
 export { _config as _loggerConfig }; // exported for use during tests
 
+const slimLogs = winston.format(info => {
+  if (info && info.message && info.message.indexOf('BadRequest: Missing x-client headers') === 0) {
+    info.body = undefined;
+    info.message = 'BadRequest: Missing x-client headers';
+  }
+  if (info && info.message && info.message.indexOf('NotAuthorized: Missing authentication headers.') === 0) {
+    info.body = undefined;
+    info.message = 'NotAuthorized: Missing authentication headers.';
+  }
+  if (info && info.message && info.message.indexOf('TooManyRequests') === 0) {
+    info.message = 'TooManyRequests';
+  }
+  if (info && info.headers) {
+    info.headers = {
+      'x-api-user': info.headers['x-api-user'] || 'unknown',
+      'x-client': info.headers['x-client'] || 'unknown',
+      'user-agent': info.headers['user-agent'] || 'unknown',
+      'x-forwarded-for': info.headers['x-forwarded-for'] || 'unknown',
+    };
+  }
+  return info;
+});
+
 if (IS_PROD) {
   if (ENABLE_CONSOLE_LOGS_IN_PROD) {
     _config.loggingEnabled = true;
@@ -49,8 +72,13 @@ if (IS_PROD) {
     logger.add(new Loggly({
       inputToken: LOGGLY_TOKEN,
       subdomain: LOGGLY_SUBDOMAIN,
-      tags: ['Winston-NodeJS'],
+      tags,
       json: true,
+      format: winston.format.combine(
+        slimLogs(),
+        winston.format.timestamp(),
+        winston.format.json(),
+      ),
     }));
   }
   // Do not log anything when testing unless specified

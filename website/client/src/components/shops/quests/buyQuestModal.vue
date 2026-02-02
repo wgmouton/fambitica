@@ -163,8 +163,38 @@
     }
 
     .modal-dialog {
-      margin-top: 8%;
       width: 448px !important;
+      max-width: calc(100vw - 20px);
+      display: flex;
+
+      @media (max-width: 468px) {
+        width: 100% !important;
+        margin: 3rem auto 0.5rem;
+      }
+
+      @media (max-width: 353px) {
+        margin: 2.5rem auto 0.25rem;
+      }
+    }
+
+    .badge-dialog {
+      left: -8px;
+      top: -8px;
+
+      .badge-pin {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .modal-content {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      @media (max-width: 300px) {
+        border-radius: 0;
+      }
     }
 
     .content {
@@ -485,8 +515,12 @@ export default {
       this.selectedAmountToBuy = 1;
       this.$emit('change', $event);
     },
-    buyItem () {
-      if (!this.confirmPurchase(this.item.currency, this.item.value * this.selectedAmountToBuy)) {
+    async buyItem () {
+      const confirmed = await this.confirmPurchase(
+        this.item.currency,
+        this.item.value * this.selectedAmountToBuy,
+      );
+      if (!confirmed) {
         return;
       }
       this.makeGenericPurchase(this.item, 'buyQuestModal', this.selectedAmountToBuy);

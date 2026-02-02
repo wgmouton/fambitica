@@ -269,12 +269,23 @@
 
     .modal-dialog {
       width: 448px;
+      max-width: calc(100vw - 20px);
       box-sizing: border-box;
+      display: flex;
+
+      @media (max-width: 468px) {
+        width: 100%;
+      }
     }
 
     .badge-dialog {
       left: -8px;
       top: -8px;
+
+      .badge-pin {
+        width: 32px;
+        height: 32px;
+      }
     }
 
     .avatar {
@@ -346,7 +357,23 @@
 
     .content {
       text-align: center;
-      width: 448px;
+      width: 100%;
+      max-width: 448px;
+      margin: 0 auto;
+
+      @media (max-width: 468px) {
+        max-width: 100%;
+      }
+    }
+
+    .modal-content {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      @media (max-width: 300px) {
+        border-radius: 0;
+      }
     }
 
     .item-wrapper {
@@ -564,7 +591,7 @@
 
     .limitedTime {
       height: 32px;
-      width: 446px;
+      width: 100%;
       font-size: 0.75rem;
       margin: 24px 0 0 0;
       background-color: $purple-300;
@@ -829,10 +856,17 @@ export default {
           - ownedMounts
           - ownedItems;
 
-        if (
-          petsRemaining < 0
-          && !window.confirm(this.$t('purchasePetItemConfirm', { itemText: this.item.text })) // eslint-disable-line no-alert
-        ) return;
+        if (petsRemaining < 0) {
+          const confirmed = await new Promise(resolve => {
+            this.$root.$emit('habitica:purchase-confirm', {
+              message: this.$t('purchasePetItemConfirm', { itemText: this.item.text }),
+              currency: this.item.currency,
+              cost: this.item.value * this.selectedAmountToBuy,
+              resolve,
+            });
+          });
+          if (!confirmed) return;
+        }
       }
 
       if (this.item.purchaseType === 'customization') {
@@ -844,15 +878,23 @@ export default {
         this.purchased(this.item.text);
       } else {
         const shouldConfirmPurchase = this.item.currency === 'gems' || this.item.currency === 'hourglasses';
-        if (
-          shouldConfirmPurchase
-          && !this.confirmPurchase(this.item.currency, this.item.value * this.selectedAmountToBuy)
-        ) {
-          return;
+        if (shouldConfirmPurchase) {
+          const confirmed = await this.confirmPurchase(
+            this.item.currency,
+            this.item.value * this.selectedAmountToBuy,
+          );
+          if (!confirmed) {
+            return;
+          }
         }
         if (this.genericPurchase) {
-          this.makeGenericPurchase(this.item, 'buyModal', this.selectedAmountToBuy);
-          await this.purchased(this.item.text);
+          if (this.item.key === 'rebirth_orb') {
+            localStorage.setItem('show-rebirth-confirmation', 'true');
+          }
+          await this.makeGenericPurchase(this.item, 'buyModal', this.selectedAmountToBuy);
+          if (this.item.key !== 'rebirth_orb') {
+            await this.purchased(this.item.text);
+          }
         }
       }
 
@@ -866,8 +908,8 @@ export default {
     purchaseGems () {
       this.$root.$emit('bv::show::modal', 'buy-gems');
     },
-    togglePinned () {
-      this.isPinned = this.$store.dispatch('user:togglePinnedItem', { type: this.item.pinType, path: this.item.path });
+    async togglePinned () {
+      this.isPinned = await this.$store.dispatch('user:togglePinnedItem', { type: this.item.pinType, path: this.item.path });
 
       if (!this.isPinned) {
         this.text(this.$t('unpinnedItem', { item: this.item.text }));

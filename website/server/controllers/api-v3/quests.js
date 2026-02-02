@@ -1,4 +1,7 @@
-import _ from 'lodash';
+import each from 'lodash/each';
+import every from 'lodash/every';
+import isBoolean from 'lodash/isBoolean';
+import pick from 'lodash/pick';
 import { authWithHeaders } from '../../middlewares/auth';
 import { getAnalyticsServiceByEnvironment } from '../../libs/analyticsService';
 import {
@@ -28,7 +31,7 @@ const questScrolls = common.content.quests;
 function canStartQuestAutomatically (group) {
   // If all members are either true (accepted) or false (rejected) return true
   // If any member is null/undefined (undecided) return false
-  return _.every(group.quest.members, _.isBoolean);
+  return every(group.quest.members, isBoolean);
 }
 
 /**
@@ -298,8 +301,13 @@ api.inviteToQuest = {
       response: 'accept',
       gaLabel: 'accept',
       questName: quest.name,
+      user: pick(user, ['preferences', 'registeredThrough']),
       uuid: user._id,
+      category: 'behavior',
       headers: req.headers,
+      owner: true,
+      questName: questKey,
+      response: 'accept',
     });
 
     await UserHistory.beginUserHistoryUpdate(user._id, req.headers)
@@ -358,10 +366,10 @@ api.acceptQuest = {
 
     // track that a user has accepted the quest
     analytics.track('quest', {
+      user: pick(user, ['preferences', 'registeredThrough']),
       category: 'behavior',
       owner: false,
       response: 'accept',
-      gaLabel: 'accept',
       questName: group.quest.key,
       uuid: user._id,
       headers: req.headers,
@@ -423,10 +431,10 @@ api.rejectQuest = {
     res.respond(200, savedGroup.quest);
 
     analytics.track('quest', {
+      user: pick(user, ['preferences', 'registeredThrough']),
       category: 'behavior',
       owner: false,
       response: 'reject',
-      gaLabel: 'reject',
       questName: group.quest.key,
       uuid: user._id,
       headers: req.headers,
@@ -487,10 +495,10 @@ api.forceStart = {
     res.respond(200, savedGroup.quest);
 
     analytics.track('quest', {
+      user: pick(user, ['preferences', 'registeredThrough']),
       category: 'behavior',
       owner: user._id === group.quest.leader,
       response: 'force-start',
-      gaLabel: 'force-start',
       questName: group.quest.key,
       uuid: user._id,
       headers: req.headers,

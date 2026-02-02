@@ -659,6 +659,30 @@ const backgrounds = {
   backgrounds062025: {
     summer_seashore: { },
   },
+  backgrounds072025: {
+    sirens_lair: { },
+  },
+  backgrounds082025: {
+    sunny_street_with_shops: { },
+  },
+  backgrounds092025: {
+    autumn_swamp: { },
+  },
+  backgrounds102025: {
+    inside_forest_witchs_cottage: { },
+  },
+  backgrounds112025: {
+    castle_keep_with_banners: { },
+  },
+  backgrounds122025: {
+    nighttime_street_with_shops: { },
+  },
+  backgrounds012026: {
+    winter_desert_with_saguaros: { },
+  },
+  backgrounds022026: {
+    elegant_palace: { },
+  },
   eventBackgrounds: {
     birthday_bash: {
       price: 0,

@@ -75,6 +75,7 @@
           >{{ $t('leaderOnlyChallenges') }}</label>
         </div>
       </div>
+      <!--
       <div class="form-group">
         <button
           class="btn btn-primary btn-lg btn-block btn-payment"

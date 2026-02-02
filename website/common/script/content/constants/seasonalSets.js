@@ -62,6 +62,11 @@ const SEASONAL_SETS = {
     'winter2025AuroraMageSet',
     'winter2025StringLightsHealerSet',
     'winter2025SnowRogueSet',
+
+    'winter2026RimeReaperWarriorSet',
+    'winter2026SkiRogueSet',
+    'winter2026PolarBearHealerSet',
+    'winter2026MidwinterCandleMageSet',
   ],
   spring: [
     // spring 2014
@@ -248,6 +253,11 @@ const SEASONAL_SETS = {
     'fall2024UnderworldSorcerorMageSet',
     'fall2024SpaceInvaderHealerSet',
     'fall2024BlackCatRogueSet',
+
+    'fall2025SasquatchWarriorSet',
+    'fall2025MaskedGhostMageSet',
+    'fall2025KoboldHealerSet',
+    'fall2025SkeletonRogueSet',
   ],
 };
 

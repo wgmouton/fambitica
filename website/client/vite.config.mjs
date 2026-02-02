@@ -26,7 +26,6 @@ const envVars = [
   'EMAILS_COMMUNITY_MANAGER_EMAIL',
   'EMAILS_TECH_ASSISTANCE_EMAIL',
   'EMAILS_PRESS_ENQUIRY_EMAIL',
-  'GA_ID',
   'STRIPE_PUB_KEY',
   'GOOGLE_CLIENT_ID',
   'APPLE_AUTH_CLIENT_ID',
@@ -36,7 +35,7 @@ const envVars = [
   'TIME_TRAVEL_ENABLED',
   'DEBUG_ENABLED',
   'CONTENT_SWITCHOVER_TIME_OFFSET',
-  // TODO necessary? if yes how not to mess up with vue cli? 'NODE_ENV'
+  'PLAY_CONSOLE_ORDERS_BASE_URL',
 ];
 
 const envObject = {};

@@ -14,7 +14,10 @@
     <bug-report-success-modal v-if="isUserLoaded" />
     <external-link-modal />
     <birthday-modal />
+    <purchase-confirm-modal v-if="isUserLoaded" />
+    <delete-task-confirm-modal v-if="isUserLoaded" />
     <template v-if="isUserLoaded">
+      <privacy-banner />
       <chat-banner />
       <damage-paused-banner />
       <gems-promo-banner />
@@ -118,11 +121,12 @@ import { loadProgressBar } from 'axios-progress-bar';
 import birthdayModal from '@/components/news/birthdayModal';
 import AppMenu from '@/components/header/menu';
 import AppHeader from '@/components/header/index';
+import BirthdayBanner from '@/components/header/banners/birthdayBanner';
 import ChatBanner from '@/components/header/banners/chatBanner';
 import DamagePausedBanner from '@/components/header/banners/damagePaused';
 import GemsPromoBanner from '@/components/header/banners/gemsPromo';
 import GiftPromoBanner from '@/components/header/banners/giftPromo';
-import BirthdayBanner from '@/components/header/banners/birthdayBanner';
+import PrivacyBanner from '@/components/header/banners/privacy';
 import AppFooter from '@/components/appFooter';
 import notificationsDisplay from '@/components/notifications';
 import { mapState } from '@/libs/store';
@@ -136,6 +140,8 @@ import paymentsSuccessModal from '@/components/payments/successModal';
 import subCancelModalConfirm from '@/components/payments/cancelModalConfirm';
 import subCanceledModal from '@/components/payments/canceledModal';
 import externalLinkModal from '@/components/externalLinkModal.vue';
+import purchaseConfirmModal from '@/components/shops/purchaseConfirmModal.vue';
+import deleteTaskConfirmModal from '@/components/tasks/deleteTaskConfirmModal.vue';
 
 import spellsMixin from '@/mixins/spells';
 import {
@@ -146,8 +152,6 @@ import {
 
 const bugReportModal = () => import('@/components/bugReportModal');
 const bugReportSuccessModal = () => import('@/components/bugReportSuccessModal');
-
-const COMMUNITY_MANAGER_EMAIL = import.meta.env.EMAILS_COMMUNITY_MANAGER_EMAIL;
 
 export default {
   name: 'App',
@@ -161,6 +165,7 @@ export default {
     GemsPromoBanner,
     GiftPromoBanner,
     BirthdayBanner,
+    PrivacyBanner,
     notificationsDisplay,
     BuyModal,
     SelectMembersModal,
@@ -171,6 +176,8 @@ export default {
     bugReportModal,
     bugReportSuccessModal,
     externalLinkModal,
+    purchaseConfirmModal,
+    deleteTaskConfirmModal,
   },
   mixins: [notifications, spellsMixin],
   data () {
@@ -261,33 +268,18 @@ export default {
       this.$store.dispatch('user:fetch'),
       this.$store.dispatch('tasks:fetchUserTasks'),
     ]).then(() => {
-      this.$store.state.isUserLoaded = true;
-      Analytics.setUser();
+      let analyticsConsent = localStorage.getItem('analyticsConsent');
+      if (analyticsConsent !== null) {
+        analyticsConsent = analyticsConsent === 'true';
+        if (analyticsConsent !== this.user.preferences.analyticsConsent) {
+          this.$store.dispatch('user:set', { 'preferences.analyticsConsent': analyticsConsent });
+        }
+      }
+
       Analytics.updateUser();
-      if (window && window['habitica-i18n']) {
-        if (this.user.preferences.language === window['habitica-i18n'].language.code) {
-          return null;
-        }
-      }
-      if (window && window['habitica-i18n']) {
-        if (this.user.preferences.language === window['habitica-i18n'].language.code) {
-          return null;
-        }
-      }
-      return axios.get(
-        '/api/v4/i18n/browser-script',
-        {
-          language: this.user.preferences.language,
-          headers: {
-            'Cache-Control': 'no-cache',
-            Pragma: 'no-cache',
-            Expires: '0',
-          },
-        },
-      );
+      return this.loadAllTranslations();
     }).then(() => {
-      const i18nData = window && window['habitica-i18n'];
-      this.$loadLocale(i18nData);
+      this.$store.state.isUserLoaded = true;
       this.hideLoadingScreen();
 
       // Adjust the timezone offset
@@ -325,29 +317,6 @@ export default {
     if (loadingScreen) document.body.removeChild(loadingScreen);
   },
   methods: {
-    checkForBannedUser (error) {
-      const AUTH_SETTINGS = localStorage.getItem('habit-mobile-settings');
-      const parseSettings = JSON.parse(AUTH_SETTINGS);
-      const errorMessage = error.response.data.message;
-
-      // Case where user is not logged in
-      if (!parseSettings) {
-        return false;
-      }
-
-      const bannedMessage = this.$t('accountSuspended', {
-        communityManagerEmail: COMMUNITY_MANAGER_EMAIL,
-        userId: parseSettings.auth.apiId,
-      });
-
-      if (errorMessage !== bannedMessage) return false;
-
-      this.$store.dispatch('auth:logout', { redirectToLogin: true });
-      return true;
-    },
-    itemSelected (item) {
-      this.selectedItemToBuy = item;
-    },
     genericPurchase (item) {
       if (!item) return false;
 
@@ -389,6 +358,36 @@ export default {
     },
     hideLoadingScreen () {
       this.loading = false;
+    },
+    async loadContentTranslations () {
+      const contentTranslations = await axios.get(
+        '/api/v4/i18n/content',
+        {
+          language: this.user.preferences.language,
+        },
+      );
+      const i18nData = window && window['habitica-i18n'];
+      i18nData.strings = { ...i18nData.strings, ...contentTranslations.data };
+      this.$loadLocale(i18nData);
+    },
+    async loadAllTranslations () {
+      if (window && window['habitica-i18n']) {
+        if (this.user.preferences.language === window['habitica-i18n'].language.code) {
+          return this.loadContentTranslations();
+        }
+      }
+      await axios.get(
+        '/api/v4/i18n/core',
+        {
+          language: this.user.preferences.language,
+          headers: {
+            'Cache-Control': 'no-cache',
+            Pragma: 'no-cache',
+            Expires: '0',
+          },
+        },
+      );
+      return this.loadContentTranslations();
     },
   },
 };

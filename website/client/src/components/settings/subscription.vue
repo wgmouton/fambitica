@@ -178,6 +178,7 @@
             >
               {{ $t('youHaveGroupPlan') }}
             </div>
+            <!--
             <p
               v-else
               class="text-center mb-4"
@@ -189,6 +190,7 @@
             >
             </p>
             <div
+              v-if="paymentMethodLogo.icon"
               class="svg svg-icon mb-4"
               :class="paymentMethodlogino.class"
               v-html="paymentMethodLogo.icon"
@@ -206,13 +208,21 @@
               </button>
             </div>
             <div
+              v-once
+              v-if="!hasGroupPlan"
+              class="small text-center mb-4"
+            >
+              {{ $t('subscriptionBillingFYIShort') }}
+            </div>
+            <div
               v-if="purchasedPlanExtraMonthsDetails.months > 0"
               class="extra-months green-10 py-2 px-3 mb-4"
               v-html="$t('purchasedPlanExtraMonths',
                          {months: purchasedPlanExtraMonthsDetails.months})"
             >
             </div>
-          </div>
+          </div
+          -->
           <div
             v-if="hasGiftSubscription"
             class="d-flex flex-column align-items-center mt-4"
@@ -375,7 +385,8 @@
           </div>
         </div>
       </div>
-      <!--<div
+      <!--
+      <div
         v-if="hasSubscription && !hasCanceledSubscription"
         class="d-flex flex-column align-items-center mb-4 w-448p text-center"
       >
@@ -394,8 +405,10 @@
           v-html="$t(`cancelSubInfo${user.purchased.plan.paymentMethod}`)"
         >
         </div>
-      </div>-->
+      </div>
+      -->
     </div>
+    <!--
     <div class="d-flex flex-column justify-content-center">
       <div class="d-flex justify-content-center">
         <div class="purple-bar my-auto"></div>
@@ -407,6 +420,13 @@
         <div class="purple-bar my-auto"></div>
       </div>
       <div class="d-flex flex-column align-items-center mt-3">
+        <div
+          v-once
+          v-if="!hasSubscription"
+          class="small gray-100 w-50 text-center mb-5"
+        >
+          {{ $t('subscriptionBillingFYI') }}
+        </div>
         <div
           v-once
           class="svg-icon svg-gift-box mb-2"
@@ -424,6 +444,7 @@
         </button>
       </div>
     </div>
+    -->
   </div>
 </template>
 
@@ -631,7 +652,7 @@
     background-color: $purple-400;
     height: 1px;
     width: 50%;
-    max-width: 432px;
+    max-width: 417px;
   }
 
   .purple-gradient {
@@ -652,6 +673,12 @@
     border-radius: 50%;
     margin: 0 auto;
     margin-bottom: 16px;
+  }
+
+  .small {
+    font-size: 12px;
+    line-height: 1.67;
+    max-width: 874px;
   }
 
   .stats-card {

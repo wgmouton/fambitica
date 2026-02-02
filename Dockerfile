@@ -21,7 +21,11 @@ COPY . /usr/src/habitica
 
 # Create configuration file (some values are needed for the client build already)
 RUN echo '{\n\
+<<<<<<< HEAD
     "BASE_URL": "http://0.0.0.0:3000",\n\
+=======
+    "BASE_URL": "http://localhost:3000",\n\
+>>>>>>> upstream-fork/self-host
     "CRON_SAFE_MODE": "false",\n\
     "CRON_SEMI_SAFE_MODE": "false",\n\
     "DISABLE_REQUEST_LOGGING": "true",\n\

@@ -108,9 +108,9 @@
 <script>
 import axios from 'axios';
 
-import * as Analytics from '@/libs/analytics';
 import { mapState } from '@/libs/store';
 import snackbars from '@/components/snackbars/notifications';
+import { LOCALSTORAGE_AUTH_KEY } from '@/libs/auth';
 
 const COMMUNITY_MANAGER_EMAIL = import.meta.env.EMAILS_COMMUNITY_MANAGER_EMAIL;
 
@@ -148,10 +148,6 @@ export default {
       if (this.isUserLoaded) {
         this.hideLoadingScreen();
       }
-    });
-    this.$nextTick(() => {
-      // Load external scripts after the app has been rendered
-      Analytics.load();
     });
 
     axios.interceptors.response.use(response => { // Set up Response interceptors
@@ -207,26 +203,40 @@ export default {
 
       return response;
     }, error => { // Set up Error interceptors
+      if (!error.response) {
+        return Promise.reject(error);
+      }
       if (error.response.status >= 400) {
         const isBanned = this.checkForBannedUser(error);
         if (isBanned === true) return null; // eslint-disable-line consistent-return
 
-        // Don't show errors from getting user details. These users have delete their account,
+        // Don't show errors from getting user details. These users have deleted their account,
         // but their chat message still exists.
         const configExists = Boolean(error.response) && Boolean(error.response.config);
-        if (configExists && error.response.config.method === 'get' && error.response.config.url.indexOf('/api/v4/members/') !== -1) {
-          // @TODO: We resolve the promise because we need our caching to cache this user as tried
-          // Chat paging should help this, but maybe we can also find another solution..
-          return Promise.resolve(error);
+        if (configExists) {
+          if (error.response.config.method === 'get' && error.response.config.url.indexOf('/api/v4/members/') !== -1) {
+            // @TODO: We resolve the promise because we need our caching to cache this user as tried
+            // Chat paging should help this, but maybe we can also find another solution..
+            return Promise.resolve(error);
+          }
+          // Also, a 404 occurs during routine attempt to log in with social,
+          // when we check for account already existing.
+          if (error.response.config.method === 'post' && (error.response.config.url.indexOf('/api/v4/user/auth/social') !== -1
+            || error.response.config.url.indexOf('/api/v4/user/auth/apple') !== -1)) {
+            const socialEmail = error.response.data.message.split(': ')[1];
+            if (socialEmail) {
+              window.sessionStorage.setItem('social-email', socialEmail);
+            }
+            return Promise.resolve(error);
+          }
         }
 
         const errorData = error.response.data;
         const errorMessage = errorData.message || errorData;
+        const errorCode = errorData.error;
 
-        // Check for conditions to reset the user auth
-        // TODO use a specific error like NotificationNotFound instead of checking for the string
-        const invalidUserMessage = [this.$t('invalidCredentials'), 'Missing authentication headers.'];
-        if (invalidUserMessage.indexOf(errorMessage) !== -1) {
+        // If 'invalid_credentials' signaled, force logout
+        if (error.response.status === 401 && errorCode === 'invalid_credentials') {
           this.$store.dispatch('auth:logout', { redirectToLogin: true });
           return null;
         }
@@ -269,6 +279,17 @@ export default {
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) document.body.removeChild(loadingScreen);
 
+    // Check if we need to show password change success message
+    if (sessionStorage.getItem('passwordChangeSuccess') === 'true') {
+      sessionStorage.removeItem('passwordChangeSuccess');
+      this.$store.dispatch('snackbars:add', {
+        title: 'Habitica',
+        text: this.$t('passwordSuccess'),
+        type: 'success',
+        timeout: true,
+      });
+    }
+
     this.$router.onReady(() => {
       if (this.isStaticPage || !this.isUserLoggedIn) {
         this.hideLoadingScreen();
@@ -280,7 +301,7 @@ export default {
       this.loading = false;
     },
     checkForBannedUser (error) {
-      const AUTH_SETTINGS = localStorage.getItem('habit-mobile-settings');
+      const AUTH_SETTINGS = localStorage.getItem(LOCALSTORAGE_AUTH_KEY);
       const parseSettings = JSON.parse(AUTH_SETTINGS);
       const errorMessage = error.response.data.message;
 

@@ -1,5 +1,6 @@
 import moment from 'moment';
 import mongoose from 'mongoose';
+import pick from 'lodash/pick';
 import nconf from 'nconf';
 import { model as User } from '../models/user';
 import * as Tasks from '../models/task';
@@ -106,10 +107,8 @@ function processHabits (user, habits, now, daysMissed) {
 function trackCronAnalytics (analytics, user, _progress, options) {
   analytics.track('Cron', {
     category: 'behavior',
-    gaLabel: 'Cron Count',
-    gaValue: user.flags.cronCount,
     uuid: user._id,
-    user,
+    user: pick(user, ['preferences', 'registeredThrough']),
     resting: user.preferences.sleep,
     cronCount: user.flags.cronCount,
     progressUp: Math.min(_progress.up, 900),
@@ -117,19 +116,6 @@ function trackCronAnalytics (analytics, user, _progress, options) {
     headers: options.headers,
     loginIncentives: user.loginIncentives,
   });
-
-  if (
-    user.party && user.party.quest && !user.party.quest.RSVPNeeded
-    && !user.party.quest.completed && user.party.quest.key && !user.preferences.sleep
-  ) {
-    analytics.track('quest participation', {
-      category: 'behavior',
-      uuid: user._id,
-      user,
-      questName: user.party.quest.key,
-      headers: options.headers,
-    }, true);
-  }
 }
 
 function awardLoginIncentives (user) {

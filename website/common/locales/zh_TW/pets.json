@@ -20,7 +20,7 @@
     "veteranFox": "將領狐狸",
     "cerberusPup": "三頭地獄幼犬",
     "hydra": "三頭蛇",
-    "mantisShrimp": "瀨尿蝦",
+    "mantisShrimp": "蝦蛄",
     "mammoth": "蓬蓬長毛象",
     "orca": "逆戟鯨",
     "royalPurpleGryphon": "紫禦獅鷲",
@@ -66,8 +66,8 @@
     "mountNotOwned": "你不擁有這匹坐騎。",
     "feedPet": "餵食<%= name %><%= text %>？",
     "raisedPet": "你養育了你的<%= pet %>！",
-    "petName": "<%= potion(locale) %><%= egg(locale) %>",
-    "mountName": "<%= potion(locale) %><%= mount(locale) %>",
+    "petName": "<%= potion %><%= egg %>",
+    "mountName": "<%= potion %><%= mount %>",
     "keyToPets": "寵物之家的鑰匙",
     "keyToPetsDesc": "釋放所有標準寵物來重新收集牠們。（副本寵物以及稀有寵物將不會被影響。）",
     "keyToMounts": "坐騎之家的鑰匙",
@@ -110,5 +110,7 @@
     "invalidAmount": "食物數量無效，必須為正整數",
     "tooMuchFood": "你正在餵寵物過多食物，行動已取消",
     "notEnoughFood": "你沒有足夠的食物",
-    "jubilantGryphatrice": "節慶獅鷲"
+    "jubilantGryphatrice": "節慶獅鷲",
+    "veteranCactus": "將領仙人掌",
+    "veteranDragon": "將領龍"
 }

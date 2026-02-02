@@ -21,7 +21,7 @@
     "subGemName": "Gemas de suscriptor",
     "maxBuyGems": "Has comprado todas las Gemas que podías comprar este mes. Habrá más gemas disponibles a partir de los tres primeros días de cada mes. ¡Gracias por suscribirte!",
     "timeTravelers": "Viajeros del tiempo",
-    "timeTravelersPopoverNoSubMobile": "Parece que necesitarás un Reloj de Arena Místico para abrir el portal del tiempo y convocar a los Misteriosos Viajeros del Tiempo.",
+    "timeTravelersPopoverNoSubMobile": "¡Los suscriptores reciben uno de los raros Relojes de arena Místico cada mes para usarlo en la Tienda de los Viajeros del Tiempo!",
     "timeTravelersPopover": "¡Tu Reloj de Arena Místico ha abierto nuestro portal del tiempo! Elige lo que deseas que obtengamos del pasado o futuro.",
     "mysterySetNotFound": "El conjunto misterioso no se ha encontrado, o bien ya lo tienes.",
     "mysteryItemIsEmpty": "Artículos misteriosos están vacíos",
@@ -264,5 +264,14 @@
     "mysterySet202503": "Conjunto de Juggernaut Jade",
     "mysterySet202504": "Conjunto de Yeti Esquivo",
     "mysterySet202505": "Conjunto Mariposa Macaón Masiva",
-    "mysterySet202506": "Conjunto Brillo Solar"
+    "mysterySet202506": "Conjunto Brillo Solar",
+    "mysterySet202507": "Conjunto de Patinador Audaz",
+    "mysterySet202508": "Conjunto Cuchilla Brillante",
+    "mysterySet202509": "Conjunto de Errante Enmarañado",
+    "mysterySet202510": "Conjunto de Necrófago Levitando",
+    "mysterySet202511": "Conjunto Guerrero de Escarcha",
+    "mysterySet202512": "Conjunto de Galleta Ganadora",
+    "mysterySet202601": "Conjunto Égida de Invierno",
+    "mysterySet202602": "Conjunto Zorro del Sakura",
+    "subscriptionBillingFYI": "Las suscripciones se renuevan automáticamente a no ser que se cancelen con 24 horas de antelación antes de que finalice el periodo en curso. Puedes modificar tu suscripción desde la pestaña Suscripción en los ajustes. Se te cargará a tu cuenta dentro de las 24 horas de la fecha de renovación, al mismo precio que pagaste inicialmente."
 }

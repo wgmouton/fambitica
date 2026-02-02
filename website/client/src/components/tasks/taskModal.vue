@@ -35,7 +35,7 @@
           </button>
           <button
             class="btn btn-secondary d-flex align-items-center justify-content-center"
-            :class="{disabled: !canSave}"
+            :class="{'btn-disabled': !canSave}"
             type="button"
             @click="submit()"
           >
@@ -166,25 +166,25 @@
           <button
             type="button"
             class="habit-option-container no-transition
-              d-flex flex-column justify-content-center align-items-center"
+            d-flex flex-column justify-content-center align-items-center"
             :class="!task.up ? cssClass('habit-control-disabled') : ''"
             :disabled="challengeAccessRequired"
             @click="toggleUpDirection()"
           >
             <div
               class="habit-option-button no-transition
-                d-flex justify-content-center align-items-center mb-2"
+              d-flex justify-content-center align-items-center mb-2"
               :class="task.up ? cssClass('bg') : ''"
             >
               <div
                 class="habit-option-icon svg-icon no-transition"
-                :class="task.up ? '' : 'disabled'"
+                :class="task.up ? '' : 'icon-disabled'"
                 v-html="icons.positive"
               ></div>
             </div>
             <div
               class="habit-option-label no-transition"
-              :class="task.up ? cssClass('icon') : 'disabled'"
+              :class="task.up ? cssClass('icon') : 'label-disabled'"
             >
               {{ $t('positive') }}
             </div>
@@ -192,25 +192,25 @@
           <button
             type="button"
             class="habit-option-container no-transition
-              d-flex flex-column justify-content-center align-items-center"
+            d-flex flex-column justify-content-center align-items-center"
             :class="!task.down ? cssClass('habit-control-disabled') : ''"
             :disabled="challengeAccessRequired"
             @click="toggleDownDirection()"
           >
             <div
               class="habit-option-button no-transition
-                d-flex justify-content-center align-items-center mb-2"
+              d-flex justify-content-center align-items-center mb-2"
               :class="task.down ? cssClass('bg') : ''"
             >
               <div
                 class="habit-option-icon no-transition svg-icon negative mx-auto"
-                :class="task.down ? '' : 'disabled'"
+                :class="task.down ? '' : 'icon-disabled'"
                 v-html="icons.negative"
               ></div>
             </div>
             <div
               class="habit-option-label no-transition"
-              :class="task.down ? cssClass('icon') : 'disabled'"
+              :class="task.down ? cssClass('icon') : 'label-disabled'"
             >
               {{ $t('negative') }}
             </div>
@@ -395,6 +395,45 @@
                 @changed="task.tags = $event"
                 @addNew="addTag"
               />
+            </div>
+          </div>
+        </div>
+        <div
+          v-if="showStatAssignment"
+          class="stat-assignment option mt-3"
+        >
+          <div class="form-group row">
+            <label
+              v-once
+              class="col-12 mb-1"
+            >{{ $t('assignedStat') }}</label>
+            <div class="col-12">
+              <div class="stat-dropdown-container">
+                <select-list
+                  :items="statOptions"
+                  :value="task.attribute"
+                  key-prop="key"
+                  active-key-prop="key"
+                  @select="task.attribute = $event.key"
+                >
+                  <template #item="{ item, button }">
+                    <div class="stat-option-content">
+                      <span
+                        class="stat-option-title"
+                        :class="item.key"
+                      >
+                        {{ $t(item.label) }}
+                      </span>
+                      <span
+                        v-if="!button"
+                        class="stat-option-description"
+                      >
+                        {{ $t(item.description) }}
+                      </span>
+                    </div>
+                  </template>
+                </select-list>
+              </div>
             </div>
           </div>
         </div>
@@ -622,8 +661,8 @@
         >
           <button
             class="btn btn-primary btn-footer
-            d-flex align-items-center justify-content-center"
-            :class="{disabled: !canSave}"
+          d-flex align-items-center justify-content-center"
+            :class="{'btn-disabled': !canSave}"
             type="button"
             @click="submit()"
           >
@@ -912,12 +951,14 @@
       }
     }
 
-    .disabled {
+    .btn-disabled {
       background-color: $white;
       border: 2px solid transparent;
       color: $gray-200;
       line-height: 1.714;
       box-shadow: 0px 1px 3px 0px rgba(26, 24, 29, 0.12), 0px 1px 2px 0px rgba(26, 24, 29, 0.24);
+      cursor: not-allowed;
+      opacity: 0.6;
 
       &:focus {
         background-color: $white;
@@ -939,6 +980,87 @@
 
   .streak-addon path {
     fill: $gray-200;
+  }
+
+  .stat-dropdown-container {
+    .select-list {
+      .selectListItem {
+        margin-bottom: 0;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      .selectListItem .dropdown-item {
+        padding: 8px 16px !important;
+        height: auto !important;
+        white-space: normal;
+        word-wrap: break-word;
+
+        &:hover,
+        &:focus {
+          background-color: rgba($purple-600, 0.25) !important;
+        }
+      }
+
+      .dropdown-toggle {
+        display: flex;
+        align-items: center;
+
+        .stat-option-content {
+          display: flex;
+          align-items: center;
+
+          .stat-option-title {
+            font-weight: normal;
+            color: $gray-50;
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+
+    .stat-option-content {
+      display: block;
+      width: 100%;
+
+      .stat-option-title {
+        display: block;
+        font-family: Roboto;
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 1.71;
+        text-transform: capitalize;
+        margin-bottom: 4px;
+
+        &.str {
+          color: $maroon-100;
+        }
+
+        &.int {
+          color: $blue-50;
+        }
+
+        &.con {
+          color: $yellow-5;
+        }
+
+        &.per {
+          color: $purple-300;
+        }
+      }
+
+      .stat-option-description {
+        display: block;
+        font-family: Roboto;
+        font-weight: 400;
+        font-size: 12px;
+        line-height: 16px;
+        color: $gray-100;
+        margin-bottom: 0;
+      }
+    }
   }
 </style>
 
@@ -979,7 +1101,7 @@
       height: 10px;
       color: $white;
 
-      &.disabled {
+      &.icon-disabled {
         color: $gray-200;
       }
 
@@ -993,7 +1115,7 @@
       font-weight: bold;
       text-align: center;
 
-      &.disabled {
+      &.label-disabled {
         color: $gray-100;
         font-weight: normal;
       }
@@ -1049,10 +1171,9 @@
     border: 0;
   }
 
-  .disabled .input-group-text {
+  .input-group-outer.disabled .input-group-text {
     color: $gray-200;
   }
-
 </style>
 
 <script>
@@ -1067,6 +1188,7 @@ import SelectMulti from './modal-controls/selectMulti';
 import selectDifficulty from '@/components/tasks/modal-controls/selectDifficulty';
 import selectTranslatedArray from '@/components/tasks/modal-controls/selectTranslatedArray';
 import lockableLabel from '@/components/tasks/modal-controls/lockableLabel';
+import selectList from '@/components/ui/selectList';
 
 import syncTask from '../../mixins/syncTask';
 
@@ -1090,6 +1212,7 @@ export default {
     selectTranslatedArray,
     toggleCheckbox,
     lockableLabel,
+    selectList,
   },
   directives: {
     markdown: markdownDirective,
@@ -1123,6 +1246,12 @@ export default {
         con: 'constitution',
         per: 'perception',
       },
+      statOptions: [
+        { key: 'str', label: 'strength', description: 'strTaskText' },
+        { key: 'int', label: 'intelligence', description: 'intTaskText' },
+        { key: 'con', label: 'constitution', description: 'conTaskText' },
+        { key: 'per', label: 'perception', description: 'perTaskText' },
+      ],
       calendarHighlights: { dates: [new Date()] },
     };
   },
@@ -1217,6 +1346,12 @@ export default {
     },
     selectedTags () {
       return this.getTagsFor(this.task);
+    },
+    showStatAssignment () {
+      return this.task.type !== 'reward'
+        && !this.groupId
+        && this.user.preferences.automaticAllocation === true
+        && this.user.preferences.allocationMode === 'taskbased';
     },
   },
   watch: {
@@ -1336,9 +1471,16 @@ export default {
       }
       this.$root.$emit('bv::hide::modal', 'task-modal');
     },
-    destroy () {
+    async destroy () {
       const type = this.$t(this.task.type);
-      if (!window.confirm(this.$t('sureDeleteType', { type }))) return; // eslint-disable-line no-alert
+      const confirmed = await new Promise(resolve => {
+        this.$root.$emit('habitica:delete-task-confirm', {
+          message: this.$t('sureDeleteType', { type }),
+          taskType: type,
+          resolve,
+        });
+      });
+      if (!confirmed) return;
       this.destroyTask(this.task);
       this.$emit('taskDestroyed', this.task);
       this.$root.$emit('bv::hide::modal', 'task-modal');

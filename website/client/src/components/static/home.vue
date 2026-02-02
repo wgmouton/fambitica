@@ -8,32 +8,23 @@
       <br />
       <a href="https://www.enable-javascript.com/" target="_blank">{{ $t('jsDisabledLink') }}</a>
     </noscript>
-    <div
-      id="intro-signup"
-      class="purple-1"
-    >
-      <div class="container">
-        <div class="row">
-          <div class="col-12 col-md-6 col-lg-6">
-            <img
-              src="@/assets/images/home/home-main@3x.png"
-              width="357px"
-            >
-            <h1>{{ $t('motivateYourself') }}</h1>
-            <p class="section-main">
-              {{ $t('timeToGetThingsDone', {userCountInMillions}) }}
-            </p>
-          </div>
-          <div class="col-12 col-md-6 col-lg-6">
-            <h3 class="text-center">
-              {{ $t('singUpForFree') }}
-            </h3>
-            <form
-              class="form"
-              @submit.prevent.stop="register()"
-            >
-              <p class="form-text">
-                {{ $t('usernameLimitations') }}
+    <privacy-banner
+      class="privacy-banner"
+    />
+    <div class="bg-purple-300 white pt-5">
+      <div>
+        <div
+          id="intro-signup"
+        >
+          <div class="d-flex justify-content-center pb-5 mb-5">
+            <div class="w-33 mr-5 mt-5">
+              <img
+                src="@/assets/images/home/home-main@3x.png"
+                width="357px"
+              >
+              <h1>{{ $t('motivateYourself') }}</h1>
+              <p class="section-main">
+                {{ $t('timeToGetThingsDone', {userCountInMillions}) }}
               </p>
               <input
                 id="usernameInput"
@@ -110,112 +101,116 @@
             ></div>
           </div>
         </div>
-      </div>
-    </div>
-    <div
-      id="gamify-life"
-      class="purple-2"
-    >
-      <div class="container-fluid">
         <div
-          class="pixel-horizontal svg-icon"
-          v-html="icons.pixelHorizontal"
-        ></div>
-      </div>
-      <div class="container">
-        <div class="row">
-          <div class="col-12 col-sm-6 col-md-6 col-lg-6 offset-sm-3 text-center">
-            <h2>{{ $t('gamifyYourLife') }}</h2>
-            <p class="section-main">
-              {{ $t('aboutHabitica') }}
-            </p>
+          id="gamify-life"
+          class="bg-purple-100 white"
+        >
+          <div class="container-fluid">
+            <div
+              class="pixel-horizontal svg-icon"
+              v-html="icons.pixelHorizontal"
+            ></div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-12 col-md-4">
-            <img
-              class="track-habits"
-              src="@/assets/images/home/track-habits@3x.png"
-              width="354px"
-              height="228px"
-            >
-            <strong>{{ $t('trackYourGoals') }}</strong>
-            <p>{{ $t('trackYourGoalsDesc') }}</p>
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-sm-6 col-md-6 col-lg-6 offset-sm-3 text-center">
+                <h2>{{ $t('gamifyYourLife') }}</h2>
+                <p class="section-main">
+                  {{ $t('aboutHabitica') }}
+                </p>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-md-4">
+                <img
+                  class="track-habits"
+                  src="@/assets/images/home/track-habits@3x.png"
+                  width="354px"
+                  height="228px"
+                >
+                <strong>{{ $t('trackYourGoals') }}</strong>
+                <p>{{ $t('trackYourGoalsDesc') }}</p>
+              </div>
+              <div class="col-12 col-md-4">
+                <img
+                  src="@/assets/images/home/earn-rewards@3x.png"
+                  width="316px"
+                  height="244px"
+                >
+                <strong>{{ $t('earnRewards') }}</strong>
+                <p>{{ $t('earnRewardsDesc') }}</p>
+              </div>
+              <div class="col-12 col-md-4">
+                <img
+                  src="@/assets/images/home/battle-monsters@3x.png"
+                  width="303px"
+                  height="244px"
+                >
+                <strong>{{ $t('battleMonsters') }}</strong>
+                <p>{{ $t('battleMonstersDesc') }}</p>
+              </div>
+            </div>
           </div>
-          <div class="col-12 col-md-4">
-            <img
-              src="@/assets/images/home/earn-rewards@3x.png"
-              width="316px"
-              height="244px"
-            >
-            <strong>{{ $t('earnRewards') }}</strong>
-            <p>{{ $t('earnRewardsDesc') }}</p>
-          </div>
-          <div class="col-12 col-md-4">
-            <img
-              src="@/assets/images/home/battle-monsters@3x.png"
-              width="303px"
-              height="244px"
-            >
-            <strong>{{ $t('battleMonsters') }}</strong>
-            <p>{{ $t('battleMonstersDesc') }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-12">
-        <div
-          class="spacer svg-icon"
-          v-html="icons.spacer"
-        ></div>
-      </div>
-    </div>
-    <div
-      id="use-cases"
-      class="purple-2"
-    >
-      <div class="container text-center">
-        <div class="row">
           <div class="col-12">
-            <h2>{{ $t('playersUseToImprove') }}</h2>
+            <div
+              class="spacer svg-icon"
+              v-html="icons.spacer"
+            ></div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-12 col-sm-4">
-            <img
-              src="@/assets/images/home/health-fitness@3x.png"
-              width="300px"
-              height="300px"
-            >
-            <strong>{{ $t('healthAndFitness') }}</strong>
-            <p>{{ $t('healthAndFitnessDesc') }}</p>
-          </div>
-          <div class="col-12 col-sm-4">
-            <img
-              src="@/assets/images/home/school-work@3x.png"
-              width="300px"
-              height="300px"
-            >
-            <strong>{{ $t('schoolAndWork') }}</strong>
-            <p>{{ $t('schoolAndWorkDesc') }}</p>
-          </div>
-          <div class="col-12 col-sm-4">
-            <img
-              src="@/assets/images/home/much-more@3x.png"
-              width="300px"
-              height="300px"
-            >
-            <strong>{{ $t('muchmuchMore') }}</strong>
-            <p>{{ $t('muchmuchMoreDesc') }}</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-12">
         <div
-          class="spacer svg-icon"
-          v-html="icons.spacer"
-        ></div>
-      </div>
-      <div class="container-fluid">
+          id="use-cases"
+          class="bg-purple-100 white"
+        >
+          <div class="container text-center">
+            <div class="row">
+              <div class="col-12">
+                <h2>{{ $t('playersUseToImprove') }}</h2>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-12 col-sm-4">
+                <img
+                  src="@/assets/images/home/health-fitness@3x.png"
+                  width="300px"
+                  height="300px"
+                >
+                <strong>{{ $t('healthAndFitness') }}</strong>
+                <p>{{ $t('healthAndFitnessDesc') }}</p>
+              </div>
+              <div class="col-12 col-sm-4">
+                <img
+                  src="@/assets/images/home/school-work@3x.png"
+                  width="300px"
+                  height="300px"
+                >
+                <strong>{{ $t('schoolAndWork') }}</strong>
+                <p>{{ $t('schoolAndWorkDesc') }}</p>
+              </div>
+              <div class="col-12 col-sm-4">
+                <img
+                  src="@/assets/images/home/much-more@3x.png"
+                  width="300px"
+                  height="300px"
+                >
+                <strong>{{ $t('muchmuchMore') }}</strong>
+                <p>{{ $t('muchmuchMoreDesc') }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div
+              class="spacer svg-icon"
+              v-html="icons.spacer"
+            ></div>
+          </div>
+          <div class="container-fluid">
+            <div
+              class="pixel-horizontal-2 svg-icon"
+              v-html="icons.pixelHorizontal2"
+            ></div>
+          </div>
+        </div>
         <div
           class="pixel-horizontal-2 svg-icon"
           v-html="icons.pixelHorizontal2"
@@ -242,52 +237,6 @@
             </button>
           </div>
         </div>
-        <div class="row featured">
-          <div class="col-12 text-center">
-            <strong>{{ $t('featuredIn') }}</strong>
-          </div>
-        </div>
-      </div>
-      <div class="container-fluid featured">
-        <div class="row">
-          <div class="col-12 text-center">
-            <div
-              class="lifehacker svg-icon"
-              v-html="icons.lifehacker"
-            ></div>
-            <div
-              class="thenewyorktimes svg-icon"
-              v-html="icons.thenewyorktimes"
-            ></div>
-            <div
-              class="makeuseof svg-icon"
-              v-html="icons.makeuseof"
-            ></div>
-            <div
-              class="forbes svg-icon"
-              v-html="icons.forbes"
-            ></div>
-            <div
-              class="cnet svg-icon"
-              v-html="icons.cnet"
-            ></div>
-            <div
-              class="kickstarter svg-icon"
-              v-html="icons.kickstarter"
-            ></div>
-            <div
-              class="fast-company svg-icon"
-              v-html="icons.fastCompany"
-            ></div>
-            <div
-              class="discover svg-icon"
-              v-html="icons.discover"
-            ></div>
-          </div>
-        </div>
-      </div>
-      <div class="container-fluid">
-        <div class="row seamless_stars_varied_opacity_repeat"></div>
       </div>
     </div>
   </div>
@@ -295,15 +244,26 @@
 
 <style lang='scss'>
 @import '@/assets/scss/static.scss';
-  #front .form-text a {
-    color: $white !important;
+  #front {
+    .form-text a {
+      color: $white !important;
+    }
+    .privacy-banner p {
+      font-size: 14px;
+    }
   }
 </style>
 
 <style lang="scss" scoped>
 @import '@/assets/scss/colors.scss';
+@import '@/assets/scss/privacy.scss';
+@import '@/assets/scss/forms.scss';
 
 @import url('https://fonts.googleapis.com/css?family=Varela+Round');
+
+  .w-33 {
+    width: 33%;
+  }
 
   #front {
     .container-fluid {
@@ -315,20 +275,8 @@
       padding-bottom: 5em;
     }
 
-    .purple-1, .purple-2, .purple-3, .purple-4, h1, h2, h3, h4, h5 {
+    .custom-control-label, h1, h2, h3, h4, h5 {
       color: $white;
-    }
-
-    .purple-1 {
-      background-color: $purple-300;
-    }
-
-    .purple-2 {
-      background-color: $purple-100;
-    }
-
-    .purple-3 {
-      background-color: $purple-50;
     }
 
     .purple-4 {
@@ -364,9 +312,16 @@
       color: $header-dark-background;
     }
 
-    h1, h2, h3, h4, h5, h6, button, .strike > span, input {
+    h1, h2, h3, h4, h5, h6, .strike > span {
       font-family: 'Varela Round', sans-serif;
       font-weight: normal;
+    }
+
+    .seamless_stars_varied_opacity_repeat {
+      background-image: url('@/assets/images/auth/seamless_stars_varied_opacity.png');
+      background-repeat: repeat-x;
+      height: 500px;
+      width: 100%;
     }
   }
 
@@ -374,8 +329,9 @@
     background-image: url('@/assets/svg/for-css/confetti.svg?raw');
 
     img {
-      margin: 0 auto;
-      display: block;
+      @media only screen and (min-width: 992px) {
+        margin-left: 15%;
+      }
     }
 
     h1 {
@@ -399,6 +355,7 @@
       transition: .5s;
 
       span {
+        font-weight: 700;
         transition: none;
       }
     }
@@ -461,64 +418,6 @@
     .form {
       padding-top: 1em;
       padding-bottom: 1em;
-    }
-
-    input {
-      margin-bottom: 1em;
-      border-radius: 2px;
-      background-color: $purple-100;
-      border-color: $purple-100;
-      color: $purple-400;
-      border: solid 2px transparent;
-      transition-timing-function: ease;
-      transition: border .5s, color .5s;
-    }
-
-    .input-invalid.input-with-error {
-      margin-bottom: 0.5em;
-    }
-
-    .input-valid {
-      color: $white;
-    }
-
-    input:focus {
-      border: solid 2px $purple-400;
-      color: #fff;
-      background-color: $purple-50;
-    }
-
-    input:hover {
-      background-color: $purple-50;
-    }
-
-    .sign-up {
-      border: 2px solid transparent;
-      box-shadow: 0 1px 3px 0 rgba($black, 0.16), 0 1px 3px 0 rgba($black, 0.24);
-      padding-top: 11px;
-      padding-bottom: 11px;
-
-      &:focus, &:active {
-        background-color: $blue-50;
-        border: 2px solid $purple-400;
-        box-shadow: 0 3px 6px 0 rgba($black, 0.16), 0 3px 6px 0 rgba($black, 0.24);
-      }
-    }
-
-    ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-      color: $purple-400;
-    }
-    ::-moz-placeholder { /* Firefox 19+ */
-      color: $purple-400;
-    }
-    :-ms-input-placeholder { /* IE 10+ */
-      color: $purple-400;
-    }
-    :-moz-placeholder { /* Firefox 18- */
-      color: $purple-400;
-    }
-    ::placeholder { //  Standard browsers
-      color: $purple-400;
     }
   }
 
@@ -720,20 +619,14 @@
   }
 
   .input-error {
-    color: $white;
-    font-size: 90%;
-    width: 100%;
     margin-bottom: 1em;
   }
 </style>
 
 <script>
-import hello from 'hellojs';
-import debounce from 'lodash/debounce';
-import isEmail from 'validator/es/lib/isEmail';
-import { MINIMUM_PASSWORD_LENGTH } from '@/../../common/script/constants';
-import { buildAppleAuthUrl } from '../../libs/auth';
-import sanitizeRedirect from '@/mixins/sanitizeRedirect';
+import notifications from '@/mixins/notifications';
+import accountCreation from '@/mixins/accountCreation';
+import PrivacyBanner from '@/components/header/banners/privacy';
 import googlePlay from '@/assets/images/home/google-play-badge.svg?raw';
 import iosAppStore from '@/assets/images/home/ios-app-store.svg?raw';
 import iphones from '@/assets/images/home/iphones.svg?raw';
@@ -754,7 +647,10 @@ import makeuseof from '@/assets/images/home/make-use-of.svg?raw';
 import thenewyorktimes from '@/assets/images/home/the-new-york-times.svg?raw';
 
 export default {
-  mixins: [sanitizeRedirect],
+  components: {
+    PrivacyBanner,
+  },
+  mixins: [accountCreation, notifications],
   data () {
     return {
       icons: Object.freeze({
@@ -778,131 +674,16 @@ export default {
         thenewyorktimes,
       }),
       userCountInMillions: 4,
-      username: '',
-      password: '',
-      passwordConfirm: '',
-      email: '',
-      usernameIssues: [],
     };
   },
-  computed: {
-    emailValid () {
-      if (this.email.length < 1) return false;
-      return isEmail(this.email);
-    },
-    emailInvalid () {
-      if (this.email.length < 1) return false;
-      return !isEmail(this.email);
-    },
-    usernameValid () {
-      if (this.username.length < 1) return false;
-      return this.usernameIssues.length === 0;
-    },
-    usernameInvalid () {
-      if (this.username.length < 1) return false;
-      return !this.usernameValid;
-    },
-    passwordValid () {
-      if (this.password.length <= 0) return false;
-      return this.password.length >= MINIMUM_PASSWORD_LENGTH;
-    },
-    passwordInvalid () {
-      if (this.password.length <= 0) return false;
-      return this.password.length < MINIMUM_PASSWORD_LENGTH;
-    },
-    passwordConfirmValid () {
-      if (this.passwordConfirm.length <= 3) return false;
-      return this.passwordConfirm === this.password;
-    },
-    passwordConfirmInvalid () {
-      if (this.passwordConfirm.length <= 3) return false;
-      return this.passwordConfirm !== this.password;
-    },
-    signupFormInvalid () {
-      return this.usernameInvalid
-        || this.emailInvalid
-        || this.passwordInvalid
-        || this.passwordConfirmInvalid;
-    },
-  },
-  watch: {
-    username () {
-      this.validateUsername(this.username);
-    },
-  },
   mounted () {
-    hello.init({
-      google: import.meta.env.GOOGLE_CLIENT_ID, // eslint-disable-line
-    });
     this.$store.dispatch('common:setTitle', {
       fullTitle: 'Habitica - Gamify Your Life',
     });
   },
   methods: {
-    // eslint-disable-next-line func-names
-    validateUsername: debounce(function (username) {
-      if (username.length < 1) {
-        return;
-      }
-
-      this.$store.dispatch('auth:verifyUsername', {
-        username: this.username,
-      }).then(res => {
-        if (res.issues !== undefined) {
-          this.usernameIssues = res.issues;
-        } else {
-          this.usernameIssues = [];
-        }
-      });
-    }, 500),
-    // @TODO this is totally duplicate from the registerLogin component
-    async register () {
-      let groupInvite = '';
-      if (this.$route.query && this.$route.query.p) {
-        groupInvite = this.$route.query.p;
-      }
-
-      if (this.$route.query && this.$route.query.groupInvite) {
-        groupInvite = this.$route.query.groupInvite;
-      }
-
-      await this.$store.dispatch('auth:register', {
-        username: this.username,
-        email: this.email,
-        password: this.password,
-        passwordConfirm: this.passwordConfirm,
-        groupInvite,
-      });
-
-      const redirect = this.sanitizeRedirect(this.$route.query.redirectTo);
-
-      window.location.href = redirect;
-    },
     playButtonClick () {
       this.$router.push('/register');
-    },
-    // @TODO: Abstract hello in to action or lib
-    async socialAuth (network) {
-      if (network === 'apple') {
-        window.location.href = buildAppleAuthUrl();
-      } else {
-        try {
-          await hello(network).logout();
-        } catch (e) {} // eslint-disable-line
-
-        const redirectUrl = `${window.location.protocol}//${window.location.host}`;
-        const auth = await hello(network).login({
-          scope: 'email',
-          // explicitly pass the redirect url or it might redirect to /home
-          redirect_uri: redirectUrl, // eslint-disable-line camelcase
-        });
-
-        await this.$store.dispatch('auth:socialAuth', {
-          auth,
-        });
-
-        window.location.href = '/';
-      }
     },
   },
 };

@@ -6,13 +6,12 @@ const StaticWrapper = () => import('@/components/static/staticWrapper');
 const HomePage = () => import('@/components/static/home');
 
 const AppleRedirectPage = () => import('@/components/static/appleRedirect');
+const ChatSunsetFaq = () => import('@/components/static/chatSunsetFaq');
 const ClearBrowserDataPage = () => import('@/components/static/clearBrowserData');
 const CommunityGuidelinesPage = () => import('@/components/static/communityGuidelines');
+const ContentScheduleFaq = () => import('@/components/static/contentScheduleFaq');
 const ContactPage = () => import('@/components/static/contact');
 const FAQPage = () => import('@/components/static/faq');
-const ChatSunsetFaq = () => import('@/components/static/chatSunsetFaq');
-const ContentScheduleFaq = () => import('@/components/static/contentScheduleFaq');
-const SubscriptionBenefitsFaq = () => import('@/components/static/subscriptionBenefitsFaq');
 const FeaturesPage = () => import('@/components/static/features');
 const GroupPlansPage = () => import('@/components/static/groupPlans');
 // Commenting out merch page see
@@ -22,6 +21,9 @@ const NewsPage = () => import('@/components/static/newStuff');
 const OverviewPage = () => import('@/components/static/overview');
 const PressKitPage = () => import('@/components/static/pressKit');
 const PrivacyPage = () => import('@/components/static/privacy');
+const RegisterLoginReset = () => import(/* webpackChunkName: "auth" */'@/components/auth/registerLoginReset');
+const RegisterUsername = () => import(/* webpackChunkName: "auth" */'@/components/auth/registerUsername');
+const SubscriptionBenefitsFaq = () => import('@/components/static/subscriptionBenefitsFaq');
 const TermsPage = () => import('@/components/static/terms');
 
 export const STATIC_ROUTES = {
@@ -56,13 +58,19 @@ export const STATIC_ROUTES = {
       name: 'features', path: 'features', component: FeaturesPage, meta: { requiresLogin: false },
     },
     {
+      name: 'forgotPassword', path: '/forgot-password', component: RegisterLoginReset, meta: { requiresLogin: false },
+    },
+    {
+      name: 'front', path: 'front', component: HomePage, meta: { requiresLogin: false },
+    },
+    {
       name: 'groupPlans', path: 'group-plans', component: GroupPlansPage, meta: { requiresLogin: false },
     },
     {
       name: 'home', path: 'home', component: HomePage, meta: { requiresLogin: false },
     },
     {
-      name: 'front', path: 'front', component: HomePage, meta: { requiresLogin: false },
+      name: 'login', path: '/login', component: RegisterLoginReset, meta: { requiresLogin: false },
     },
     {
       name: 'news', path: 'new-stuff', component: NewsPage, meta: { requiresLogin: false },
@@ -80,7 +88,22 @@ export const STATIC_ROUTES = {
       name: 'privacy', path: 'privacy', component: PrivacyPage, meta: { requiresLogin: false },
     },
     {
+      name: 'privacyReview', path: 'privacy-review', component: PrivacyPage, meta: { requiresLogin: false },
+    },
+    {
+      name: 'register', path: '/register', component: RegisterLoginReset, meta: { requiresLogin: false },
+    },
+    {
+      name: 'resetPassword', path: '/reset-password', component: RegisterLoginReset, meta: { requiresLogin: false },
+    },
+    {
       name: 'terms', path: 'terms', component: TermsPage, meta: { requiresLogin: false },
+    },
+    {
+      name: 'termsReview', path: 'terms-review', component: TermsPage, meta: { requiresLogin: false },
+    },
+    {
+      name: 'username', path: '/username', component: RegisterUsername, meta: { requiresLogin: false },
     },
     {
       name: 'notFound', path: 'not-found', component: NotFoundPage, meta: { requiresLogin: false },

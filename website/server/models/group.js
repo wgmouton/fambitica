@@ -346,12 +346,12 @@ schema.statics.getGroups = async function getGroups (options = {}) {
 // unless the user is an admin or said chat is posted by that user
 // Not putting into toJSON because there we can't access user
 // It also removes the _meta field that can be stored inside a chat message
-schema.statics.toJSONCleanChat = async function groupToJSONCleanChat (group, user) {
+schema.statics.toJSONCleanChat = async function groupToJSONCleanChat (group, user, options = {}) {
   // @TODO: Adding this here for support the old chat,
   // but we should depreciate accessing chat like this
   // Also only return chat if requested, eventually we don't want to return chat here
   if (group && group.chat) {
-    await getGroupChat(group);
+    await getGroupChat(group, options);
   }
 
   const groupToJson = group.toJSON();
@@ -1534,8 +1534,13 @@ schema.methods.unlinkTask = async function groupUnlinkTask (
     'group.assignedUsers': user._id,
   };
 
-  delete unlinkingTask.group.assignedUsersDetail[user._id];
-  unlinkingTask.group.assignedUsers = _.keys(unlinkingTask.group.assignedUsersDetail);
+  if (unlinkingTask.group.assignedUsersDetail) {
+    delete unlinkingTask.group.assignedUsersDetail[user._id];
+    unlinkingTask.group.assignedUsers = _.keys(unlinkingTask.group.assignedUsersDetail);
+  } else {
+    // Task was created before assignedUsersDetail was added
+    removeFromArray(unlinkingTask.group.assignedUsers, user._id);
+  }
   unlinkingTask.markModified('group');
 
   const promises = [unlinkingTask.save()];
