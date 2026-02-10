@@ -33,6 +33,7 @@ export default function taskDefaults (task, user) {
         approved: false,
         requested: false,
       },
+      completeByAll: true,
     },
     reminders: [],
     attribute: 'str',

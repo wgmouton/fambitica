@@ -603,17 +603,29 @@ export async function cronWrapper (req, res) {
     user.auth.timestamps.loggedin = now;
     user.lastCron = now;
 
-    session = await mongoose.startSession();
-    await session.withTransaction(async () => {
-      await user.save({ session });
+    const DISABLE_MONGO_TRANSACTIONS = nconf.get('DISABLE_MONGO_TRANSACTIONS') === 'true';
+    if (DISABLE_MONGO_TRANSACTIONS) {
+      await user.save();
       for (const index in tasks) {
         if (Object.prototype.hasOwnProperty.call(tasks, index)) {
           const task = tasks[index];
           // eslint-disable-next-line no-await-in-loop
-          if (task.isModified()) await task.save({ session });
+          if (task.isModified()) await task.save();
         }
       }
-    });
+    } else {
+      session = await mongoose.startSession();
+      await session.withTransaction(async () => {
+        await user.save({ session });
+        for (const index in tasks) {
+          if (Object.prototype.hasOwnProperty.call(tasks, index)) {
+            const task = tasks[index];
+            // eslint-disable-next-line no-await-in-loop
+            if (task.isModified()) await task.save({ session });
+          }
+        }
+      });
+    }
 
     await Group.processQuestProgress(user, progress);
 

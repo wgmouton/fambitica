@@ -21,6 +21,7 @@
   "CRON_SEMI_SAFE_MODE": "false",
   "DEBUG_ENABLED": "false",
   "DISABLE_REQUEST_LOGGING": "true",
+  "DISABLE_MONGO_TRANSACTIONS": "true",
   "EMAIL_SERVER_AUTH_PASSWORD": "password",
   "EMAIL_SERVER_AUTH_USER": "user",
   "EMAIL_SERVER_URL": "http://example.com",

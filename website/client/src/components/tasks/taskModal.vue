@@ -520,33 +520,37 @@
             >
               {{ $t('clear') }}
             </a>
-            <div class="col-12">
-              <select-multi
-                ref="assignMembers"
-                :all-items="membersNameAndId"
-                :empty-message="$t('unassigned')"
-                :pill-invert="true"
-                :search-placeholder="$t('chooseTeamMember')"
-                :selected-items="assignedMembers"
-                @toggle="toggleAssignment($event)"
-              />
-            </div>
+          <div class="col-12">
+            <select-multi
+              ref="assignMembers"
+              :all-items="membersNameAndId"
+              :empty-message="$t('unassigned')"
+              :pill-invert="true"
+              :search-placeholder="$t('chooseTeamMember')"
+              :selected-items="assignedMembers"
+              @toggle="toggleAssignment($event)"
+            />
           </div>
-          <!-- <div class="form-group row mt-3 mb-3">
+        </div>
+          <div
+            v-if="['daily', 'todo'].includes(task.type)"
+            class="form-group row mt-3 mb-3"
+          >
             <label
               v-once
-              class="col-10 mb-1"
-            >All assigned must complete</label>
+              class="col-12 mb-1"
+            >Completion</label>
             <div class="col-12">
-              <checkbox
-                v-if="!disableEdit"
-                :id="`completeByAll`"
-                :disabled="disabled"
-                class="input-group-prepend"
-                :class="{'cursor-auto': disabled}"
-              />
+              <select
+                class="form-control"
+                v-model="completionMode"
+                :disabled="challengeAccessRequired"
+              >
+                <option value="all">{{ $t('allAssignedCompletion') }}</option>
+                <option value="single">{{ $t('singleCompletion') }}</option>
+              </select>
             </div>
-          </div> -->
+          </div>
         </div>
         <div
           v-if="advancedSettingsAvailable"
@@ -1422,11 +1426,22 @@ export default {
         && this.user.preferences.automaticAllocation === true
         && this.user.preferences.allocationMode === 'taskbased';
     },
+    completionMode: {
+      get () {
+        if (!this.task?.group) return 'all';
+        return this.task.group.completeByAll === false ? 'single' : 'all';
+      },
+      set (value) {
+        if (!this.task.group) this.$set(this.task, 'group', {});
+        this.$set(this.task.group, 'completeByAll', value !== 'single');
+      },
+    },
   },
   watch: {
     task () {
       this.syncTask();
       this.normalizeReminders();
+      this.normalizeGroupOptions();
     },
     'task.startDate': function taskStartDate () {
       this.calculateMonthlyRepeatDays();
@@ -1474,6 +1489,7 @@ export default {
     async onShow () {
       await this.syncTask();
       this.normalizeReminders();
+      this.normalizeGroupOptions();
     },
     normalizeReminders () {
       if (!this.task) return;
@@ -1486,6 +1502,14 @@ export default {
         startDate: reminder.startDate ? new Date(reminder.startDate) : null,
         time: reminder.time ? new Date(reminder.time) : null,
       }));
+    },
+    normalizeGroupOptions () {
+      if (!this.task) return;
+      if (!this.groupId && !this.task?.group?.id) return;
+      if (!this.task.group) this.$set(this.task, 'group', {});
+      if (typeof this.task.group.completeByAll !== 'boolean') {
+        this.$set(this.task.group, 'completeByAll', true);
+      }
     },
     defaultReminderDate () {
       if (this.task.type === 'todo' && this.task.date) return new Date(this.task.date);

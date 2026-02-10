@@ -659,6 +659,16 @@ api.updateTask = {
     if (Object.prototype.hasOwnProperty.call(sanitizedObj, 'managerNotes')) {
       task.group.managerNotes = sanitizedObj.managerNotes;
     }
+    if (
+      task.group?.id
+      && !task.userId
+      && ['daily', 'todo'].includes(task.type)
+      && req.body?.group
+      && Object.prototype.hasOwnProperty.call(req.body.group, 'completeByAll')
+    ) {
+      task.group.completeByAll = req.body.group.completeByAll === true || req.body.group.completeByAll === 'true';
+      task.markModified('group');
+    }
 
     // For daily tasks, update start date based on timezone to maintain consistency
     if (task.type === 'daily'

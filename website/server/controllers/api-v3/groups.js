@@ -150,11 +150,17 @@ api.createGroup = {
     }
 
     let savedGroup;
+    const DISABLE_MONGO_TRANSACTIONS = nconf.get('DISABLE_MONGO_TRANSACTIONS') === 'true';
 
-    await Group.db.transaction(async session => {
-      await user.save({ session });
-      savedGroup = await group.save({ session });
-    });
+    if (DISABLE_MONGO_TRANSACTIONS) {
+      await user.save();
+      savedGroup = await group.save();
+    } else {
+      await Group.db.transaction(async session => {
+        await user.save({ session });
+        savedGroup = await group.save({ session });
+      });
+    }
 
     // Instead of populate we make a find call manually because of https://github.com/Automattic/mongoose/issues/3833
     // await Q.ninvoke(savedGroup, 'populate', ['leader', nameFields]);

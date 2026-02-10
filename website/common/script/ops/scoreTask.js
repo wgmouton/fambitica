@@ -310,9 +310,16 @@ export default function scoreTask (options = {}, req = {}, analytics) {
             task.completed = true;
             task.streak += 1;
           } else {
+            const requireAll = task.group.completeByAll !== false;
             task.group.assignedUsersDetail[user._id].completed = true;
             task.group.assignedUsersDetail[user._id].completedDate = new Date();
-            if (!find(task.group.assignedUsersDetail, assignedUser => !assignedUser.completed)) {
+            if (requireAll) {
+              if (!find(task.group.assignedUsersDetail, assignedUser => !assignedUser.completed)) {
+                task.dateCompleted = new Date();
+                task.completed = true;
+                task.streak += 1;
+              }
+            } else if (!task.completed) {
               task.dateCompleted = new Date();
               task.completed = true;
               task.streak += 1;
@@ -340,16 +347,27 @@ export default function scoreTask (options = {}, req = {}, analytics) {
         }
       } else if (direction === 'down') {
         if (task.group.id) {
-          if (!task.group.assignedUsersDetail
-            || !find(task.group.assignedUsersDetail, assignedUser => !assignedUser.completed)
-          ) {
-            task.streak -= 1;
-            task.completed = false;
-          }
+          const requireAll = task.group.completeByAll !== false;
+          const wasCompleted = task.completed;
           if (task.group.completedBy) task.group.completedBy = {};
           if (task.group.assignedUsersDetail && task.group.assignedUsersDetail[user._id]) {
             task.group.assignedUsersDetail[user._id].completed = false;
             task.group.assignedUsersDetail[user._id].completedDate = undefined;
+          }
+          if (requireAll) {
+            const anyIncomplete = !task.group.assignedUsersDetail
+              || find(task.group.assignedUsersDetail, assignedUser => !assignedUser.completed);
+            if (anyIncomplete) {
+              if (wasCompleted) task.streak -= 1;
+              task.completed = false;
+            }
+          } else {
+            const anyCompleted = task.group.assignedUsersDetail
+              && find(task.group.assignedUsersDetail, assignedUser => assignedUser.completed);
+            if (!anyCompleted) {
+              if (wasCompleted) task.streak -= 1;
+              task.completed = false;
+            }
           }
           if (task.markModified) task.markModified('group');
         } else {
@@ -380,9 +398,15 @@ export default function scoreTask (options = {}, req = {}, analytics) {
             };
             task.completed = true;
           } else {
+            const requireAll = task.group.completeByAll !== false;
             task.group.assignedUsersDetail[user._id].completed = true;
             task.group.assignedUsersDetail[user._id].completedDate = new Date();
-            if (!find(task.group.assignedUsersDetail, assignedUser => !assignedUser.completed)) {
+            if (requireAll) {
+              if (!find(task.group.assignedUsersDetail, assignedUser => !assignedUser.completed)) {
+                task.dateCompleted = new Date();
+                task.completed = true;
+              }
+            } else if (!task.completed) {
               task.dateCompleted = new Date();
               task.completed = true;
             }
@@ -393,15 +417,38 @@ export default function scoreTask (options = {}, req = {}, analytics) {
           task.completed = true;
         }
       } else if (direction === 'down') {
-        task.completed = false;
-        task.dateCompleted = undefined;
+        const wasCompleted = task.completed;
         if (task.group.id) {
+          const requireAll = task.group.completeByAll !== false;
           if (task.group.completedBy) task.group.completedBy = {};
           if (task.group.assignedUsersDetail && task.group.assignedUsersDetail[user._id]) {
             task.group.assignedUsersDetail[user._id].completed = false;
             task.group.assignedUsersDetail[user._id].completedDate = undefined;
           }
+          if (requireAll) {
+            const anyIncomplete = !task.group.assignedUsersDetail
+              || find(task.group.assignedUsersDetail, assignedUser => !assignedUser.completed);
+            if (anyIncomplete) {
+              task.completed = false;
+              task.dateCompleted = undefined;
+            } else {
+              task.completed = true;
+            }
+          } else {
+            const anyCompleted = task.group.assignedUsersDetail
+              && find(task.group.assignedUsersDetail, assignedUser => assignedUser.completed);
+            if (anyCompleted) {
+              task.completed = true;
+              if (!wasCompleted) task.dateCompleted = new Date();
+            } else {
+              task.completed = false;
+              task.dateCompleted = undefined;
+            }
+          }
           if (task.markModified) task.markModified('group');
+        } else {
+          task.completed = false;
+          task.dateCompleted = undefined;
         }
       }
 

@@ -70,6 +70,11 @@ async function createTasks (req, res, options = {}) {
       newTask.group.id = group._id;
       newTask.tags = [group._id];
       newTask.group.managerNotes = taskData.managerNotes || '';
+      if (typeof taskData?.group?.completeByAll !== 'undefined') {
+        newTask.group.completeByAll = taskData.group.completeByAll;
+      } else if (typeof taskData?.completeByAll !== 'undefined') {
+        newTask.group.completeByAll = taskData.completeByAll;
+      }
     } else {
       newTask.userId = user._id;
 
