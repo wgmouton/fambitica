@@ -6,7 +6,7 @@
     size="sm"
     :hide-footer="true"
     @hidden="onClose()"
-    @show="syncTask()"
+    @show="onShow()"
     @shown="focusInput()"
   >
     <div
@@ -373,6 +373,56 @@
                 for="repeat-dayOfWeek"
               >{{ $t('dayOfWeek') }}</label>
             </div>
+          </div>
+        </div>
+        <div
+          v-if="task.type !== 'reward'"
+          class="option mt-3 reminders"
+        >
+          <div class="form-group">
+            <label
+              class="d-block mb-1"
+            >Reminders</label>
+            <div
+              v-if="task.reminders && task.reminders.length > 0"
+              class="reminders-list"
+            >
+              <div
+                v-for="(reminder, index) in task.reminders"
+                :key="reminder.id || index"
+                class="reminder-row d-flex align-items-center mb-2"
+              >
+                <datepicker
+                  class="reminder-date"
+                  :date="reminder.startDate"
+                  :disabled="challengeAccessRequired"
+                  @update:date="setReminderDate(reminder, $event)"
+                />
+                <input
+                  class="form-control reminder-time"
+                  type="time"
+                  :value="formatReminderTime(reminder)"
+                  :disabled="challengeAccessRequired"
+                  @input="setReminderTime(reminder, $event.target.value)"
+                >
+                <button
+                  class="btn btn-link reminder-remove"
+                  type="button"
+                  :disabled="challengeAccessRequired"
+                  @click="removeReminder(index)"
+                >
+                  {{ $t('remove') }}
+                </button>
+              </div>
+            </div>
+            <button
+              class="btn btn-secondary btn-sm mt-2"
+              type="button"
+              :disabled="challengeAccessRequired"
+              @click="addReminder()"
+            >
+              {{ $t('add') }}
+            </button>
           </div>
         </div>
         <div
@@ -766,6 +816,24 @@
 
       .custom-control-label p {
         word-break: break-word;
+      }
+    }
+
+    .reminders {
+      .reminder-row {
+        gap: 0.5rem;
+
+        .reminder-date {
+          flex: 1 1 auto;
+        }
+
+        .reminder-time {
+          max-width: 120px;
+        }
+
+        .reminder-remove {
+          padding: 0 0.25rem;
+        }
       }
     }
 
@@ -1179,6 +1247,7 @@
 <script>
 import axios from 'axios';
 import moment from 'moment';
+import { v4 as uuid } from 'uuid';
 import Datepicker from '@/components/ui/datepicker';
 import toggleCheckbox from '@/components/ui/toggleCheckbox';
 import markdownDirective from '@/directives/markdown';
@@ -1357,6 +1426,7 @@ export default {
   watch: {
     task () {
       this.syncTask();
+      this.normalizeReminders();
     },
     'task.startDate': function taskStartDate () {
       this.calculateMonthlyRepeatDays();
@@ -1401,6 +1471,77 @@ export default {
     weekdaysMin (dayNumber) {
       return moment.weekdaysMin(dayNumber);
     },
+    async onShow () {
+      await this.syncTask();
+      this.normalizeReminders();
+    },
+    normalizeReminders () {
+      if (!this.task) return;
+      if (!Array.isArray(this.task.reminders)) {
+        this.$set(this.task, 'reminders', []);
+        return;
+      }
+      this.task.reminders = this.task.reminders.map(reminder => ({
+        ...reminder,
+        startDate: reminder.startDate ? new Date(reminder.startDate) : null,
+        time: reminder.time ? new Date(reminder.time) : null,
+      }));
+    },
+    defaultReminderDate () {
+      if (this.task.type === 'todo' && this.task.date) return new Date(this.task.date);
+      if (this.task.type === 'daily' && this.task.startDate) return new Date(this.task.startDate);
+      return new Date();
+    },
+    defaultReminderTime (baseDate) {
+      const date = new Date(baseDate);
+      date.setHours(9, 0, 0, 0);
+      return date;
+    },
+    addReminder () {
+      if (!this.task.reminders) this.$set(this.task, 'reminders', []);
+      const startDate = this.defaultReminderDate();
+      const time = this.defaultReminderTime(startDate);
+      this.task.reminders.push({
+        id: uuid(),
+        startDate,
+        time,
+      });
+    },
+    removeReminder (index) {
+      if (!this.task?.reminders) return;
+      this.task.reminders.splice(index, 1);
+    },
+    formatReminderTime (reminder) {
+      if (!reminder?.time) return '';
+      const date = new Date(reminder.time);
+      if (Number.isNaN(date.getTime())) return '';
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    },
+    setReminderDate (reminder, date) {
+      if (!reminder || !date) return;
+      reminder.startDate = date;
+      const timeSource = reminder.time ? new Date(reminder.time) : date;
+      const updated = new Date(date);
+      updated.setHours(timeSource.getHours(), timeSource.getMinutes(), 0, 0);
+      reminder.time = updated;
+    },
+    setReminderTime (reminder, timeString) {
+      if (!reminder || !timeString) return;
+      const [hours, minutes] = timeString.split(':').map(Number);
+      const baseDate = reminder.startDate
+        ? new Date(reminder.startDate)
+        : (reminder.time ? new Date(reminder.time) : new Date());
+      const updated = new Date(baseDate);
+      updated.setHours(hours || 0, minutes || 0, 0, 0);
+      reminder.time = updated;
+      if (!reminder.startDate) reminder.startDate = new Date(baseDate);
+    },
+    cleanReminders () {
+      if (!this.task?.reminders) return;
+      this.task.reminders = this.task.reminders.filter(reminder => reminder && reminder.time && reminder.startDate);
+    },
     formattedDate (date) {
       return moment(date).format('MM/DD/YYYY');
     },
@@ -1430,6 +1571,7 @@ export default {
     async submit () {
       if (!this.canSave) return;
       if (this.newChecklistItem) this.addChecklistItem();
+      this.cleanReminders();
 
       if (this.task.type === 'reward' && this.task.value === '') {
         this.task.value = 0;
