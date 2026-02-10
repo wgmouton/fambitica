@@ -1,9 +1,7 @@
 {
-  "name": "habitica",
-  "description": "A habit tracker app which treats your goals like a Role Playing Game.",
-  "version": "5.44.2",
-  "main": "./website/server/index.js",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.699.0",
+    "@aws-sdk/s3-request-presigner": "^3.699.0",
     "@babel/core": "^7.22.10",
     "@babel/preset-env": "^7.22.10",
     "@babel/register": "^7.22.15",
@@ -82,39 +80,7 @@
     "winston-loggly-bulk": "^3.3.0",
     "xml2js": "^0.6.2"
   },
-  "private": true,
-  "engines": {
-    "node": "20",
-    "npm": "^10"
-  },
-  "scripts": {
-    "lint": "eslint --ext .js --fix . && cd website/client && npm run lint",
-    "lint-no-fix": "eslint --ext .js . && cd website/client && npm run lint-no-fix",
-    "test": "npm run lint && gulp test && gulp apidoc",
-    "test:build": "gulp test:prepare:build",
-    "test:api-v3": "gulp test:api-v3",
-    "test:api:unit": "gulp test:api:unit",
-    "test:api-v3:integration": "gulp test:api-v3:integration",
-    "test:api-v3:integration:separate-server": "NODE_ENV=test gulp test:api-v3:integration:separate-server",
-    "test:api-v4:integration": "gulp test:api-v4:integration",
-    "test:api-v4:integration:separate-server": "NODE_ENV=test gulp test:api-v4:integration:separate-server",
-    "test:sanity": "nyc --silent --no-clean mocha test/sanity --recursive",
-    "test:common": "nyc --silent --no-clean mocha test/common --recursive",
-    "test:content": "nyc --silent --no-clean mocha test/content --recursive",
-    "coverage": "nyc report --reporter=html --report-dir coverage/results; open coverage/results/index.html",
-    "sprites": "gulp sprites:compile",
-    "client:dev": "cd website/client && npm run serve",
-    "client:build": "cd website/client && npm run build",
-    "client:unit": "cd website/client && npm run test:unit",
-    "start": "node --watch ./website/server/index.js",
-    "start:simple": "node ./website/server/index.js",
-    "debug": "node --watch --inspect ./website/server/index.js",
-    "mongo:dev": "run-rs -v 7.0.23 -l ubuntu2214 --keep --dbpath mongodb-data --number 1 --quiet",
-    "mongo:test": "run-rs -v 7.0.23 -l ubuntu2214 --keep --dbpath mongodb-data-testing --number 1 --quiet",
-    "postinstall": "git config --global url.\"https://\".insteadOf git:// && gulp build && cd website/client && npm install",
-    "apidoc": "gulp apidoc",
-    "heroku-postbuild": ".heroku/report_deploy.sh"
-  },
+  "description": "A habit tracker app which treats your goals like a Role Playing Game.",
   "devDependencies": {
     "axios": "^1.8.2",
     "chai": "^4.3.7",
@@ -129,5 +95,41 @@
     "run-rs": "^0.7.7",
     "sinon-chai": "^3.7.0",
     "sinon-stub-promise": "^4.0.0"
-  }
+  },
+  "engines": {
+    "node": "20",
+    "npm": "^10"
+  },
+  "main": "./website/server/index.js",
+  "name": "habitica",
+  "private": true,
+  "scripts": {
+    "apidoc": "gulp apidoc",
+    "client:build": "cd website/client && npm run build",
+    "client:dev": "cd website/client && npm run serve",
+    "client:unit": "cd website/client && npm run test:unit",
+    "coverage": "nyc report --reporter=html --report-dir coverage/results; open coverage/results/index.html",
+    "debug": "node --watch --inspect ./website/server/index.js",
+    "heroku-postbuild": ".heroku/report_deploy.sh",
+    "lint": "eslint --ext .js --fix . && cd website/client && npm run lint",
+    "lint-no-fix": "eslint --ext .js . && cd website/client && npm run lint-no-fix",
+    "mongo:dev": "run-rs -v 7.0.23 -l ubuntu2214 --keep --dbpath mongodb-data --number 1 --quiet",
+    "mongo:test": "run-rs -v 7.0.23 -l ubuntu2214 --keep --dbpath mongodb-data-testing --number 1 --quiet",
+    "postinstall": "git config --global url.\"https://\".insteadOf git:// && gulp build && cd website/client && npm install",
+    "sprites": "gulp sprites:compile",
+    "start": "node --watch ./website/server/index.js",
+    "start:simple": "node ./website/server/index.js",
+    "test": "npm run lint && gulp test && gulp apidoc",
+    "test:api-v3": "gulp test:api-v3",
+    "test:api-v3:integration": "gulp test:api-v3:integration",
+    "test:api-v3:integration:separate-server": "NODE_ENV=test gulp test:api-v3:integration:separate-server",
+    "test:api-v4:integration": "gulp test:api-v4:integration",
+    "test:api-v4:integration:separate-server": "NODE_ENV=test gulp test:api-v4:integration:separate-server",
+    "test:api:unit": "gulp test:api:unit",
+    "test:build": "gulp test:prepare:build",
+    "test:common": "nyc --silent --no-clean mocha test/common --recursive",
+    "test:content": "nyc --silent --no-clean mocha test/content --recursive",
+    "test:sanity": "nyc --silent --no-clean mocha test/sanity --recursive"
+  },
+  "version": "5.44.2"
 }

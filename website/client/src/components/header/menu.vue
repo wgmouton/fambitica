@@ -262,6 +262,46 @@
               </router-link>
             </div>
           </li>
+          <li
+            class="topbar-item droppable"
+            v-if="user.permissions.fullAccess ||
+                  user.permissions.userSupport"
+            :class="{
+              'active': $route.path.startsWith('/admin')}"
+          >
+            <div
+              class="chevron rotate"
+              @click="dropdownMobile($event)"
+            >
+              <div
+                v-once
+                class="chevron-icon-down"
+                v-html="icons.chevronDown"
+              ></div>
+            </div>
+            <router-link
+              class="nav-link"
+              :to="{name: 'adminPanel'}"
+            >
+              Admin
+            </router-link>
+            <div class="topbar-dropdown">
+              <router-link
+                class="topbar-dropdown-item dropdown-item"
+                :to="{name: 'adminPanel'}"
+              >
+                User Management
+              </router-link>
+            </div>
+            <div class="topbar-dropdown">
+              <router-link
+                class="topbar-dropdown-item dropdown-item"
+                :to="{name: 'adminGroups'}"
+              >
+                Party Management
+              </router-link>
+            </div>
+          </li>
         </b-navbar-nav>
         <div class="currency-tray form-inline">
           <div

@@ -4,7 +4,10 @@ export default {
   methods: {
     async sync () {
       this.$root.$emit(EVENTS.RESYNC_REQUESTED);
-      if (this.$route.fullPath.indexOf('task-information') !== -1) {
+      if (
+        this.$route.fullPath.indexOf('task-information') !== -1
+        || this.$route.fullPath.indexOf('/party/tasks') !== -1
+      ) {
         this.$root.$emit('habitica:team-sync');
       }
       await Promise.all([

@@ -1,14 +1,15 @@
 <template>
-  <b-modal
-    id="task-modal"
-    :no-close-on-esc="true"
-    :no-close-on-backdrop="true"
-    size="sm"
-    :hide-footer="true"
-    @hidden="onClose()"
-    @show="onShow()"
-    @shown="focusInput()"
-  >
+  <div>
+    <b-modal
+      id="task-modal"
+      :no-close-on-esc="true"
+      :no-close-on-backdrop="true"
+      size="sm"
+      :hide-footer="true"
+      @hidden="onClose()"
+      @show="onShow()"
+      @shown="focusInput()"
+    >
     <div
       v-if="task"
       slot="modal-header"
@@ -78,15 +79,26 @@
           :locked="challengeAccessRequired"
           text="Image"
         />
-        <input
-          ref="inputToFocus"
-          v-model="task.image"
-          class="form-control input-image"
-          :class="cssClass('input')"
-          type="text"
-          spellcheck="true"
-          placeholder="Image URL"
-        >
+        <div class="input-group">
+          <input
+            ref="inputToFocus"
+            v-model="task.image"
+            class="form-control input-image"
+            :class="cssClass('input')"
+            type="text"
+            spellcheck="true"
+            placeholder="Image URL"
+          >
+          <div class="input-group-append">
+            <button
+              class="btn btn-secondary"
+              type="button"
+              @click="openImagePicker()"
+            >
+              Pick
+            </button>
+          </div>
+        </div>
       </div>
       <div
         class="form-group mb-0"
@@ -730,7 +742,44 @@
         </div>
       </form>
     </div>
-  </b-modal>
+    </b-modal>
+    <b-modal
+      id="task-image-picker"
+      :hide-footer="true"
+      title="Select an Image"
+      size="lg"
+    >
+      <div class="image-picker">
+        <div class="d-flex align-items-center mb-3">
+          <input
+            ref="imageUploadInput"
+            class="form-control-file"
+            type="file"
+            accept="image/*"
+            @change="handleImageUpload"
+          >
+        </div>
+        <div v-if="imageUploadError" class="text-danger mb-2">
+          {{ imageUploadError }}
+        </div>
+        <div v-if="imageItems.length === 0" class="text-muted">
+          No images found.
+        </div>
+        <div class="image-grid">
+          <button
+            v-for="item in imageItems"
+            :key="item.key"
+            class="image-tile"
+            type="button"
+            @click="selectImage(item.url)"
+          >
+            <img :src="item.url" :alt="item.key">
+            <div class="image-key">{{ item.key }}</div>
+          </button>
+        </div>
+      </div>
+    </b-modal>
+  </div>
 </template>
 
 <style lang="scss">
@@ -871,6 +920,37 @@
       cursor: pointer;
       margin-top: 0px;
       width: 100%;
+    }
+
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .image-tile {
+      border: 1px solid $gray-500;
+      background: $gray-700;
+      padding: 0.5rem;
+      border-radius: 6px;
+      text-align: left;
+      color: $gray-100;
+      max-width: 120px;
+    }
+
+    .image-tile img {
+      width: 100%;
+      height: 120px;
+      object-fit: contain;
+      border-radius: 4px;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .image-key {
+      font-size: 12px;
+      word-break: break-word;
+      opacity: 0.8;
     }
 
     .category-box {
@@ -1313,6 +1393,8 @@ export default {
       assignedMembers: [],
       managers: [],
       showAdvancedOptions: false,
+      imageItems: [],
+      imageUploadError: '',
       attributesStrings: {
         str: 'strength',
         int: 'intelligence',
@@ -1490,6 +1572,53 @@ export default {
       await this.syncTask();
       this.normalizeReminders();
       this.normalizeGroupOptions();
+    },
+    async openImagePicker () {
+      this.imageUploadError = '';
+      await this.fetchImageItems();
+      this.$root.$emit('bv::show::modal', 'task-image-picker');
+    },
+    async fetchImageItems () {
+      try {
+        const response = await axios.get('/api/v4/media/tasks');
+        this.imageItems = response.data.data || [];
+      } catch (err) {
+        this.imageItems = [];
+      }
+    },
+    async handleImageUpload (event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      this.imageUploadError = '';
+      try {
+        const sign = await axios.post('/api/v4/media/tasks/sign-upload', {
+          filename: file.name,
+          contentType: file.type,
+          size: file.size,
+        });
+        const { uploadUrl, publicUrl } = sign.data.data;
+        const uploadRes = await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': file.type,
+          },
+          body: file,
+        });
+        if (!uploadRes.ok) {
+          throw new Error('Upload failed.');
+        }
+        this.task.image = publicUrl;
+        await this.fetchImageItems();
+        this.$root.$emit('bv::hide::modal', 'task-image-picker');
+      } catch (err) {
+        this.imageUploadError = err.response?.data?.message || 'Upload failed.';
+      } finally {
+        if (this.$refs.imageUploadInput) this.$refs.imageUploadInput.value = '';
+      }
+    },
+    selectImage (url) {
+      this.task.image = url;
+      this.$root.$emit('bv::hide::modal', 'task-image-picker');
     },
     normalizeReminders () {
       if (!this.task) return;

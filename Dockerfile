@@ -52,13 +52,21 @@ RUN echo '{\n\
     "LOG_AMPLITUDE_EVENTS": "false",\n\
     "RATE_LIMITER_ENABLED": "false",\n\
     "CONTENT_SWITCHOVER_TIME_OFFSET": 8\n\
-}' > /usr/src/habitica/config.json
-
-# Build the server and web components
-RUN ./node_modules/.bin/gulp build:prod
-RUN npm run client:build
-
-
+    }' > /usr/src/habitica/config.json
+    
+    # Build the server and web components
+    RUN ./node_modules/.bin/gulp build:prod
+    RUN npm run client:build
+    
+    
+    # "S3_ENDPOINT": "http://127.0.0.1:9000",\n\
+    # "S3_REGION": "us-east-1",\n\
+    # "S3_ACCESS_KEY_ID": "minioadmin",\n\
+    # "S3_SECRET_ACCESS_KEY": "minioadmin",\n\
+    # "S3_BUCKET": "habitica",\n\
+    # "S3_PUBLIC_BASE_URL": "http://127.0.0.1:9000/habitica",\n\
+    # "S3_FORCE_PATH_STYLE": "true",\n\
+    # "S3_TASKS_PREFIX": "task-images/",\n\
 
 # Container for providing the build server component of Habitica
 FROM node:20 AS server

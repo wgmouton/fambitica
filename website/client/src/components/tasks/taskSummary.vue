@@ -30,9 +30,17 @@
       v-if="task"
       class="task-modal-content pt-3 px-4 pb-4"
     >
-      <div class="summary-block">
-        <h3> {{ $t('title') }} </h3>
-        <p> {{ task.text }} </p>
+      <div class="summary-block summary-title">
+        <div class="summary-text">
+          <h3> {{ $t('title') }} </h3>
+          <p> {{ task.text }} </p>
+        </div>
+        <img
+          v-if="task.image"
+          class="task-image-thumb"
+          :src="task.image"
+          alt="Task image"
+        >
       </div>
       <div
         v-if="task.notes"
@@ -147,6 +155,26 @@
 
   .summary-block:not(:last-of-type) {
     margin-bottom: 1rem;
+  }
+
+  .summary-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .summary-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .task-image-thumb {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid $gray-500;
+    flex: 0 0 auto;
   }
 
   .task-modal-content {

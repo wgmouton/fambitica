@@ -103,11 +103,19 @@
             @keypress.enter="edit($event, task)"
           >
             <div class="d-flex justify-content-between">
-              <h3
-                v-markdown="task.text"
-                class="task-title markdown"
-                :class="{ 'has-notes': task.notes }"
-              ></h3>
+              <div class="task-title-row">
+                <img
+                  v-if="task.image"
+                  class="task-image-icon"
+                  :src="task.image"
+                  alt="Task image"
+                >
+                <h3
+                  v-markdown="task.text"
+                  class="task-title markdown"
+                  :class="{ 'has-notes': task.notes }"
+                ></h3>
+              </div>
               <menu-dropdown
                 v-if="!isRunningYesterdailies && showOptions"
                 ref="taskDropdown"
@@ -524,8 +532,8 @@
     }
 
     &:focus {
-      border-radius: 4px;
-      border: $purple-400 solid 1px;
+      outline: none;
+      border-color: transparent;
     }
   }
 
@@ -645,6 +653,23 @@
       border-top-left-radius: 4px;
       border-bottom-left-radius: 4px;
     }
+  }
+
+  .task-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  .task-image-icon {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    background-color: $white;
+    border-radius: 4px;
+    border: 1px solid $gray-400;
+    flex: 0 0 auto;
   }
 
   .checklist.isOpen {

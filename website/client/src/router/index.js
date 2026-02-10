@@ -136,6 +136,10 @@ const router = new VueRouter({
       props: true,
       children: [
         {
+          path: '',
+          redirect: { name: 'partyDetailTaskInformation' },
+        },
+        {
           name: 'partyDetailTaskInformation',
           path: '/party/tasks',
           component: GroupPlanTaskInformation,
