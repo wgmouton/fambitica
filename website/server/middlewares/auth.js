@@ -1,6 +1,7 @@
 import moment from 'moment';
 import nconf from 'nconf';
 import url from 'url';
+import validator from 'validator';
 import {
   InvalidCredentialsError,
   NotAuthorized,
@@ -12,8 +13,10 @@ import {
 import gcpStackdriverTracer from '../libs/gcpTraceAgent';
 import common from '../../common';
 import { getLanguageFromUser } from '../libs/language';
+import * as passwordUtils from '../libs/password';
 
 const ENFORCE_CLIENT_HEADER = nconf.get('ENFORCE_CLIENT_HEADER') === 'true';
+const BASIC_AUTH_LOGIN_ENABLED = nconf.get('BASIC_AUTH_LOGIN_ENABLED') === 'true';
 
 const OFFICIAL_PLATFORMS = ['habitica-web', 'habitica-ios', 'habitica-android'];
 const COMMUNITY_MANAGER_EMAIL = nconf.get('EMAILS_COMMUNITY_MANAGER_EMAIL');
@@ -55,6 +58,25 @@ function stackdriverTraceUserId (userId) {
   }
 }
 
+function parseBasicAuth (req) {
+  const header = req.headers.authorization || '';
+  if (!header.startsWith('Basic ')) return null;
+  const encoded = header.slice('Basic '.length).trim();
+  if (!encoded) return null;
+  let decoded;
+  try {
+    decoded = Buffer.from(encoded, 'base64').toString('utf8');
+  } catch (err) {
+    return null;
+  }
+  const index = decoded.indexOf(':');
+  if (index === -1) return null;
+  const username = decoded.slice(0, index);
+  const password = decoded.slice(index + 1);
+  if (!username || !password) return null;
+  return { username, password };
+}
+
 // Strins won't be translated here because getUserLanguage has not run yet
 
 // Authenticate a request through the x-api-user and x-api key header
@@ -72,6 +94,55 @@ export function authWithHeaders (options = {}) {
     }
 
     if (!userId || !apiToken) {
+      if (BASIC_AUTH_LOGIN_ENABLED) {
+        const basic = parseBasicAuth(req);
+        if (basic) {
+          const { username, password } = basic;
+          let login;
+          if (validator.isEmail(String(username))) {
+            login = { 'auth.local.email': username.toLowerCase() };
+          } else {
+            login = { 'auth.local.username': username };
+          }
+          return User.findOne(login).exec()
+            .then(async user => {
+              if (!user || !user.auth.local.hashed_password) {
+                throw new InvalidCredentialsError(res.t('invalidCredentials'));
+              }
+              const isValidPassword = await passwordUtils.compare(user, password);
+              if (!isValidPassword) {
+                throw new InvalidCredentialsError(res.t('invalidCredentials'));
+              }
+              if (user.auth.local.passwordHashMethod === 'sha1') {
+                await passwordUtils.convertToBcrypt(user, password);
+              }
+              if (user.auth.blocked) {
+                const language = getLanguageFromUser(user, req);
+                throw new NotAuthorized(common.i18n.t('accountSuspended', {
+                  communityManagerEmail: COMMUNITY_MANAGER_EMAIL,
+                  userId: user._id,
+                  username: user.auth.local.username,
+                }, language));
+              }
+              res.locals.user = user;
+              req.session.userId = user._id;
+              req.headers['x-api-user'] = user._id.toString();
+              req.headers['x-api-key'] = user.apiToken;
+              stackdriverTraceUserId(user._id);
+              user.auth.timestamps.updated = new Date();
+              if (OFFICIAL_PLATFORMS.indexOf(client) === -1
+                && (!user.flags.thirdPartyTools || moment().diff(user.flags.thirdPartyTools, 'days') > 0)
+              ) {
+                User.updateOne({ _id: user._id }, { $set: { 'flags.thirdPartyTools': new Date() } }).exec();
+              }
+              return next();
+            })
+            .catch(err => {
+              if (optional) return next();
+              return next(err);
+            });
+        }
+      }
       if (optional) return next();
       return next(new NotAuthorized(res.t('missingAuthHeaders')));
     }

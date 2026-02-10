@@ -22,18 +22,37 @@ services:
       - mongo
     environment:
       - NODE_DB_URI=mongodb://mongo:27017/habitica # this only needs to be adapted if using a separate database
-      - BASE_URL=http://0.0.0.0:8080 # change this to the URL under which your instance will be reachable
+      - BASE_URL=http://localhost:8080 # change this to the URL under which your instance will be reachable
+      - BASIC_AUTH_LOGIN_ENABLED=true
       - INVITE_ONLY=false # change to `true` after registration of initial users, to restrict further registrations
     networks:
       - habitica
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.habitica.rule=Host(`localhost`)"
+      - "traefik.http.routers.habitica.entrypoints=web"
+      - "traefik.http.routers.habitica.middlewares=habitica-basic@docker"
+      - "traefik.http.services.habitica.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.habitica-basic.headers.customRequestHeaders.Authorization=Basic dGVzdDpxd2VydDEyMzQ1"
+  traefik:
+    image: traefik:v2.11
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:8080"
     ports:
-      - "3000:3000"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - habitica
   mongo:
     image: mongo:latest
     # image: docker.io/mongo:latest
     restart: unless-stopped
     hostname: mongo
-    command: ["--replSet", "rs", "--bind_ip_all", "--port", "27017"]
+    # command: ["--replSet", "rs", "--bind_ip_all", "--port", "27017"]
+    command: ["--bind_ip_all", "--port", "27017"]
     healthcheck:
       test: echo "try { rs.status() } catch (err) { rs.initiate() }" | mongosh --port 27017 --quiet
       interval: 10s

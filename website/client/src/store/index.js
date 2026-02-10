@@ -56,6 +56,7 @@ export default function clientStore () {
       // Means the user and the user's tasks are ready
       // @TODO use store.user.loaded since it's an async resource?
       isUserLoaded: false,
+      basicAuthAttempted: false,
       isAmazonReady: false, // Whether the Amazon Payments lib can be used
       user: asyncResourceFactory(),
       // Keep track of the ids of notifications that have been removed

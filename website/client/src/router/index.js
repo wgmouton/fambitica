@@ -12,6 +12,7 @@ import { DEPRECATED_ROUTES } from '@/router/deprecated-routes';
 // NOTE: when adding a page make sure to implement the `common:setTitle` action
 
 const Logout = () => import(/* webpackChunkName: "auth" */'@/components/auth/logout');
+const RegisterLoginReset = () => import(/* webpackChunkName: "auth" */'@/components/auth/registerLoginReset');
 const Avatar = () => import(/* webpackChunkName: "avatar" */'@/components/avatar');
 
 // Hall
@@ -299,13 +300,28 @@ const router = new VueRouter({
 });
 
 const store = getStore();
+const BASIC_AUTH_LOGIN_ENABLED = import.meta.env.BASIC_AUTH_LOGIN_ENABLED === 'true';
 
 router.beforeEach(async (to, from, next) => {
-  const { isUserLoggedIn, isUserLoaded } = store.state;
+  let { isUserLoggedIn, isUserLoaded } = store.state;
   const routeRequiresLogin = to.meta.requiresLogin !== false;
   const routePrivilegeNeeded = to.meta.privilegeNeeded;
 
   if (to.name === 'redirect') return handleRedirect(to, from, next);
+
+  if (BASIC_AUTH_LOGIN_ENABLED && (to.name === 'login' || to.name === 'register' || to.name === 'forgotPassword' || to.name === 'resetPassword')) {
+    return next({ name: 'tasks' });
+  }
+
+  if (!isUserLoggedIn && BASIC_AUTH_LOGIN_ENABLED && !store.state.basicAuthAttempted) {
+    store.state.basicAuthAttempted = true;
+    try {
+      await store.dispatch('auth:basicLogin');
+    } catch (err) {
+      // Ignore and fall back to normal login flow.
+    }
+    ({ isUserLoggedIn, isUserLoaded } = store.state);
+  }
 
   if (!isUserLoggedIn && routeRequiresLogin) {
     // Redirect to the login page unless the user is trying to reach the

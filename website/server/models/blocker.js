@@ -1,6 +1,7 @@
 /* eslint-disable camelcase */
 
 import mongoose from 'mongoose';
+import nconf from 'nconf';
 import EventEmitter from 'events';
 import baseModel from '../libs/baseModel';
 
@@ -46,6 +47,7 @@ schema.plugin(baseModel, {
 
 schema.statics.watchBlockers = function watchBlockers (query, options) {
   const emitter = new EventEmitter();
+  const enableWatch = nconf.get('BLOCKER_WATCH_ENABLED') === 'true';
   const matchQuery = {
     $match: {},
   };
@@ -58,6 +60,23 @@ schema.statics.watchBlockers = function watchBlockers (query, options) {
     }
   }
   process.nextTick(() => {
+    if (options.initial) {
+      const initialQuery = {
+        disabled: false,
+        ...query,
+      };
+      this.find(initialQuery).then(docs => {
+        for (const doc of docs) {
+          emitter.emit('change', {
+            operation: 'add',
+            blocker: doc,
+          });
+        }
+      }).catch(error => {
+        emitter.emit('error', error);
+      });
+    }
+    if (!enableWatch) return;
     this.watch([matchQuery], {
       fullDocument: 'updateLookup',
     })
@@ -80,22 +99,6 @@ schema.statics.watchBlockers = function watchBlockers (query, options) {
       .on('error', error => {
         emitter.emit('error', error);
       });
-    if (options.initial) {
-      const initialQuery = {
-        disabled: false,
-        ...query,
-      };
-      this.find(initialQuery).then(docs => {
-        for (const doc of docs) {
-          emitter.emit('change', {
-            operation: 'add',
-            blocker: doc,
-          });
-        }
-      }).catch(error => {
-        emitter.emit('error', error);
-      });
-    }
   });
   return emitter;
 };

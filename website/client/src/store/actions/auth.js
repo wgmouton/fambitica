@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { authAsCredentialsState, LOCALSTORAGE_AUTH_KEY } from '@/libs/auth';
+import { authAsCredentialsState, LOCALSTORAGE_AUTH_KEY, setUpAxios } from '@/libs/auth';
 
 function saveLocalDataAuth (store, apiId, apiToken) {
   const credentialsObj = {
@@ -44,6 +44,18 @@ export async function login (store, params) {
   const user = result.data.data;
 
   saveLocalDataAuth(store, user.id, user.apiToken);
+}
+
+export async function basicLogin (store) {
+  const url = '/api/v4/user/auth/basic';
+  const result = await axios.get(url);
+  const user = result.data.data;
+
+  saveLocalDataAuth(store, user.id, user.apiToken);
+  setUpAxios({ auth: { apiId: user.id, apiToken: user.apiToken } });
+  store.state.isUserLoggedIn = true;
+
+  return user;
 }
 
 export async function verifyUsername (store, params) {

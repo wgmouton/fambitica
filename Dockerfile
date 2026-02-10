@@ -21,11 +21,7 @@ COPY . /usr/src/habitica
 
 # Create configuration file (some values are needed for the client build already)
 RUN echo '{\n\
-<<<<<<< HEAD
     "BASE_URL": "http://0.0.0.0:3000",\n\
-=======
-    "BASE_URL": "http://localhost:3000",\n\
->>>>>>> upstream-fork/self-host
     "CRON_SAFE_MODE": "false",\n\
     "CRON_SEMI_SAFE_MODE": "false",\n\
     "DISABLE_REQUEST_LOGGING": "true",\n\
@@ -43,6 +39,8 @@ RUN echo '{\n\
     "PATH": "bin:node_modules/.bin:/usr/local/bin:/usr/bin:/bin",\n\
     "PORT": 3000,\n\
     "PUSH_CONFIGS_APN_ENABLED": "false",\n\
+    "BASIC_AUTH_LOGIN_ENABLED": "true",\n\
+    "BLOCKER_WATCH_ENABLED": "false",\n\
     "SESSION_SECRET": "YOUR SECRET HERE",\n\
     "SESSION_SECRET_IV": "12345678912345678912345678912345",\n\
     "SESSION_SECRET_KEY": "1234567891234567891234567891234567891234567891234567891234567891",\n\

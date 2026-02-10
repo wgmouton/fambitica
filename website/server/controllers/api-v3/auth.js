@@ -139,6 +139,27 @@ api.loginLocal = {
   },
 };
 
+/**
+ * @api {get} /api/v3/user/auth/basic Login (Basic Auth)
+ * @apiDescription Login a user using HTTP Basic Auth (username/email + password)
+ * @apiName UserLoginBasic
+ * @apiGroup User
+ */
+api.loginBasic = {
+  method: 'GET',
+  url: '/user/auth/basic',
+  middlewares: [authWithHeaders({
+    optional: true,
+  })],
+  async handler (req, res) {
+    if (!res.locals.user) {
+      res.set('WWW-Authenticate', 'Basic realm="Habitica"');
+      throw new NotAuthorized(res.t('invalidLoginCredentialsLong'));
+    }
+    return loginRes(res.locals.user, req, res);
+  },
+};
+
 // Called as a callback by Facebook (or other social providers). Internal route
 api.loginSocial = {
   method: 'POST',

@@ -36,6 +36,7 @@ const envVars = [
   'DEBUG_ENABLED',
   'CONTENT_SWITCHOVER_TIME_OFFSET',
   'PLAY_CONSOLE_ORDERS_BASE_URL',
+  'BASIC_AUTH_LOGIN_ENABLED',
 ];
 
 const envObject = {};
