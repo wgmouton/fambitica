@@ -43,7 +43,7 @@
       class="tasks-list"
     >
       <textarea
-        v-if="isUser || canCreateTasks()"
+        v-if="(isUser && type !== 'reward') || canCreateTasks()"
         ref="quickAdd"
         v-model="quickAddText"
         class="quick-add"

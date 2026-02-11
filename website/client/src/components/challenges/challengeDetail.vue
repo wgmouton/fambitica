@@ -119,6 +119,48 @@
             @member-selected="openMemberProgressModal"
             @opened="initialMembersLoad()"
           />
+          <div
+            v-if="canManageChallengeMembers"
+            class="mt-3"
+          >
+            <strong class="view-progress">{{ $t('addParticipant') }}</strong>
+            <b-dropdown
+              class="create-dropdown"
+              :text="$t('selectPartyMember')"
+              no-flip="no-flip"
+              @show="loadPartyMembers"
+            >
+              <b-dropdown-form
+                :disabled="false"
+                @submit.prevent
+              >
+                <input
+                  v-model="partyMemberSearch"
+                  class="form-control member-input"
+                  type="text"
+                >
+              </b-dropdown-form>
+              <b-dropdown-item
+                v-for="member in filteredPartyMembers"
+                :key="member._id"
+                @click="addMemberToChallenge(member)"
+              >
+                {{ memberName(member) }}
+              </b-dropdown-item>
+              <b-dropdown-item
+                v-if="filteredPartyMembers.length === 0"
+                disabled
+              >
+                No members found.
+              </b-dropdown-item>
+            </b-dropdown>
+            <div
+              v-if="addMemberError"
+              class="text-danger small-text mt-1"
+            >
+              {{ addMemberError }}
+            </div>
+          </div>
         </div>
         <div class="col-12 col-md-6 text-right">
           <span v-if="isLeader || isAdmin">
@@ -494,6 +536,8 @@ export default {
       challenge: {},
       members: [],
       membersLoaded: false,
+      partyMemberSearch: '',
+      addMemberError: '',
       tasksByType: {
         habit: [],
         daily: [],
@@ -519,6 +563,36 @@ export default {
     },
     isAdmin () {
       return this.hasPermission(this.user, 'challengeAdmin');
+    },
+    isPartyChallenge () {
+      return this.challenge.group && this.challenge.group.type === 'party';
+    },
+    partyData () {
+      return this.$store.state.party.data || {};
+    },
+    partyMembers () {
+      return this.$store.state.partyMembers.data || [];
+    },
+    isPartyLeader () {
+      if (!this.partyData || !this.partyData.leader) return false;
+      return this.user._id === this.partyData.leader
+        || this.user._id === this.partyData.leader._id;
+    },
+    isParent () {
+      return Boolean(this.partyData.managers && this.partyData.managers[this.user._id]);
+    },
+    canManageChallengeMembers () {
+      if (!this.isPartyChallenge) return false;
+      return this.isLeader || this.isAdmin || this.isPartyLeader || this.isParent;
+    },
+    filteredPartyMembers () {
+      const search = this.partyMemberSearch.trim().toLowerCase();
+      const memberIds = new Set(this.members.map(member => member._id));
+      return this.partyMembers.filter(member => {
+        if (memberIds.has(member._id)) return false;
+        const name = this.memberName(member).toLowerCase();
+        return !search || name.includes(search);
+      });
     },
     canJoin () {
       return !this.isMember;
@@ -586,6 +660,9 @@ export default {
         this.$router.push('/challenges/findChallenges');
         return;
       }
+      if (this.challenge.group && this.challenge.group.type === 'party') {
+        await this.$store.dispatch('party:getParty', true);
+      }
       this.$store.dispatch('common:setTitle', {
         subSection: this.challenge.name,
         section: this.$t('challenges'),
@@ -630,6 +707,12 @@ export default {
       } else {
         this.$store.state.memberModalOptions.loading = false;
       }
+    },
+    async loadPartyMembers () {
+      this.addMemberError = '';
+      if (!this.isPartyChallenge) return;
+      this.partyMemberSearch = '';
+      await this.$store.dispatch('party:getMembers', true);
     },
     editTask (task) {
       this.taskFormPurpose = 'edit';
@@ -713,6 +796,30 @@ export default {
         isLeader: this.isLeader,
         isAdmin: this.isAdmin,
       });
+    },
+    memberName (member) {
+      if (member.auth && member.auth.local && member.auth.local.username) {
+        return `@${member.auth.local.username}`;
+      }
+      return member.profile.name;
+    },
+    async addMemberToChallenge (member) {
+      this.addMemberError = '';
+      try {
+        const response = await this.$store.dispatch('challenges:addChallengeMember', {
+          challengeId: this.searchId,
+          memberId: member._id,
+        });
+        if (response && response.member) {
+          this.members.push(response.member);
+        }
+        if (response && response.challenge && response.challenge.memberCount) {
+          this.challenge.memberCount = response.challenge.memberCount;
+        }
+        this.partyMemberSearch = '';
+      } catch (err) {
+        this.addMemberError = err.response?.data?.message || 'Unable to add member.';
+      }
     },
     async exportChallengeCsv () {
       window.location = `/api/v4/challenges/${this.searchId}/export/csv`;

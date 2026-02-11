@@ -161,7 +161,7 @@
                     class="svg-icon inline"
                     v-html="icons.starIcon"
                   ></div>
-                  <span class="text">{{ $t('addManager') }}</span>
+                  <span class="text">{{ addManagerLabel }}</span>
                 </span>
               </b-dropdown-item>
               <b-dropdown-item
@@ -173,7 +173,7 @@
                     class="svg-icon inline block-icon"
                     v-html="icons.blockIcon"
                   ></div>
-                  <span class="text">{{ $t('removeManager2') }}</span>
+                  <span class="text">{{ removeManagerLabel }}</span>
                 </span>
               </b-dropdown-item>
               <b-dropdown-item
@@ -465,6 +465,9 @@ export default {
     isAdmin () {
       return Boolean(this.hasPermission(this.user, 'moderator'));
     },
+    isParty () {
+      return this.group && this.group.type === 'party';
+    },
     isLoadMoreAvailable () {
       // Only available if the current length of `members` is less than the
       // total size of the Group/Challenge
@@ -472,6 +475,25 @@ export default {
     },
     groupIsSubscribed () {
       return this.group.purchased && this.group.purchased.active;
+    },
+    canManageParents () {
+      return this.groupIsSubscribed || this.isParty;
+    },
+    addManagerLabel () {
+      if (this.isParty) return 'Assign Parent';
+      return this.$t('addManager');
+    },
+    removeManagerLabel () {
+      if (this.isParty) return 'Unassign Parent';
+      return this.$t('removeManager2');
+    },
+    managerAddedMessage () {
+      if (this.isParty) return 'Parent added successfully';
+      return this.$t('managerAdded');
+    },
+    managerRemovedMessage () {
+      if (this.isParty) return 'Parent removed successfully';
+      return this.$t('managerRemoved');
     },
     group () {
       return this.$store.state.memberModalOptions.group;
@@ -620,14 +642,14 @@ export default {
         groupId: this.groupId,
         memberId,
       });
-      window.alert(this.$t('managerAdded')); // eslint-disable-line no-alert
+      window.alert(this.managerAddedMessage); // eslint-disable-line no-alert
     },
     async removeManager (memberId) {
       await this.$store.dispatch('guilds:removeManager', {
         groupId: this.groupId,
         memberId,
       });
-      window.alert(this.$t('managerRemoved')); // eslint-disable-line no-alert
+      window.alert(this.managerRemovedMessage); // eslint-disable-line no-alert
     },
     close () {
       this.$root.$emit('bv::hide::modal', 'members-modal');
@@ -698,10 +720,12 @@ export default {
     shouldShowAddManager (memberId) {
       if (!this.isLeader && !this.isAdmin) return false;
       if (memberId === this.group.leader || memberId === this.group.leader._id) return false;
-      return this.groupIsSubscribed && !(this.group.managers && this.group.managers[memberId]);
+      if (!this.canManageParents) return false;
+      return !(this.group.managers && this.group.managers[memberId]);
     },
     shouldShowRemoveManager (memberId) {
       if (!this.isLeader && !this.isAdmin) return false;
+      if (!this.canManageParents) return false;
       return this.group.managers && this.group.managers[memberId];
     },
     shouldShowLeaderFunctions (memberId) {

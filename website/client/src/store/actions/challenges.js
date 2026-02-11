@@ -22,6 +22,14 @@ export async function joinChallenge (store, payload) {
   return response.data.data;
 }
 
+export async function addChallengeMember (store, payload) {
+  const response = await axios.post(`/api/v4/challenges/${payload.challengeId}/add-member`, {
+    memberId: payload.memberId,
+  });
+
+  return response.data.data;
+}
+
 export async function leaveChallenge (store, payload) {
   const url = `/api/v4/challenges/${payload.challengeId}/leave`;
   const response = await axios.post(url, {

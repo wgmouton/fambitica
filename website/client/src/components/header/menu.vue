@@ -162,7 +162,7 @@
             class="topbar-item"
             :class="{'active': $route.path.startsWith('/party')}"
             tag="li"
-            :to="{name: 'party'}"
+            :to="{name: 'partyDetailTaskInformation'}"
           >
             {{ $t('party') }}
           </b-nav-item>
@@ -183,7 +183,7 @@
             </div>
             <router-link
               class="nav-link"
-              :to="{name: 'party'}"
+              :to="{name: 'partyDetailTaskInformation'}"
             >
               {{ $t('party') }}
             </router-link>

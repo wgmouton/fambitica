@@ -210,6 +210,9 @@ api.createUserTasks = {
   middlewares: [authWithHeaders()],
   async handler (req, res) {
     const { user } = res.locals;
+    const tasksToCreate = Array.isArray(req.body) ? req.body : [req.body];
+    const hasReward = tasksToCreate.some(task => task && task.type === 'reward');
+    if (hasReward) throw new NotAuthorized(apiError('personalRewardsDisabled'));
     const tasks = await createTasks(req, res, { user });
 
     res.respond(201, tasks.length === 1 ? tasks[0] : tasks);
@@ -317,12 +320,26 @@ api.createChallengeTasks = {
 
     const { user } = res.locals;
     const { challengeId } = req.params;
+    const tasksToCreate = Array.isArray(req.body) ? req.body : [req.body];
+    const rewardOnly = tasksToCreate.length > 0
+      && tasksToCreate.every(task => task && task.type === 'reward');
 
     const challenge = await Challenge.findOne({ _id: challengeId }).exec();
 
     // If the challenge does not exist, or if it exists but user is not the leader -> throw error
     if (!challenge) throw new NotFound(res.t('challengeNotFound'));
-    if (!challenge.canModify(user)) throw new NotAuthorized(res.t('onlyChalLeaderEditTasks'));
+    if (!challenge.canModify(user)) {
+      let allowParent = false;
+      if (rewardOnly && challenge.group) {
+        const group = await Group.findById(challenge.group).select('leader managers type').exec();
+        if (group && group.type === 'party') {
+          const isLeader = group.leader === user._id;
+          const isParent = group.managers && Boolean(group.managers[user._id]);
+          allowParent = isLeader || isParent;
+        }
+      }
+      if (!allowParent) throw new NotAuthorized(res.t('onlyChalLeaderEditTasks'));
+    }
 
     const tasks = await createTasks(req, res, { user, challenge });
 

@@ -745,6 +745,7 @@
     </b-modal>
     <b-modal
       id="task-image-picker"
+      modal-class="task-image-picker-modal"
       :hide-footer="true"
       title="Select an Image"
       size="lg"
@@ -759,6 +760,15 @@
             @change="handleImageUpload"
           >
         </div>
+        <div class="mb-3">
+          <input
+            v-model.trim="imageFilter"
+            class="form-control"
+            type="text"
+            placeholder="Filter images"
+            aria-label="Filter images"
+          >
+        </div>
         <div v-if="imageUploadError" class="text-danger mb-2">
           {{ imageUploadError }}
         </div>
@@ -767,7 +777,7 @@
         </div>
         <div class="image-grid">
           <button
-            v-for="item in imageItems"
+            v-for="item in filteredImageItems"
             :key="item.key"
             class="image-tile"
             type="button"
@@ -920,37 +930,6 @@
       cursor: pointer;
       margin-top: 0px;
       width: 100%;
-    }
-
-    .image-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: 0.75rem;
-    }
-
-    .image-tile {
-      border: 1px solid $gray-500;
-      background: $gray-700;
-      padding: 0.5rem;
-      border-radius: 6px;
-      text-align: left;
-      color: $gray-100;
-      max-width: 120px;
-    }
-
-    .image-tile img {
-      width: 100%;
-      height: 120px;
-      object-fit: contain;
-      border-radius: 4px;
-      display: block;
-      margin-bottom: 0.5rem;
-    }
-
-    .image-key {
-      font-size: 12px;
-      word-break: break-word;
-      opacity: 0.8;
     }
 
     .category-box {
@@ -1214,6 +1193,44 @@
       }
     }
   }
+
+  #task-image-picker,
+  .task-image-picker-modal {
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 200px));
+      gap: 0.75rem;
+      justify-items: start;
+    }
+
+    .image-tile {
+      border: 1px solid $gray-500;
+      background: $gray-700;
+      padding: 0.5rem;
+      border-radius: 6px;
+      text-align: left;
+      color: $gray-100;
+      width: 100%;
+      max-width: 200px;
+    }
+
+    .image-tile img {
+      width: 100%;
+      max-width: 200px;
+      max-height: 200px;
+      height: 200px;
+      object-fit: contain;
+      border-radius: 4px;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .image-key {
+      font-size: 12px;
+      word-break: break-word;
+      opacity: 0.8;
+    }
+  }
 </style>
 
 <style lang="scss" scoped>
@@ -1394,6 +1411,7 @@ export default {
       managers: [],
       showAdvancedOptions: false,
       imageItems: [],
+      imageFilter: '',
       imageUploadError: '',
       attributesStrings: {
         str: 'strength',
@@ -1420,6 +1438,11 @@ export default {
       dayMapping: 'constants.DAY_MAPPING',
       ATTRIBUTES: 'constants.ATTRIBUTES',
     }),
+    filteredImageItems () {
+      const filter = this.imageFilter.trim().toLowerCase();
+      if (!filter) return this.imageItems;
+      return this.imageItems.filter(item => item.key.toLowerCase().includes(filter));
+    },
     // region advanced settings
     advancedSettingsShowAdjustCounter () {
       return this.task.type === 'habit'
@@ -1575,6 +1598,7 @@ export default {
     },
     async openImagePicker () {
       this.imageUploadError = '';
+      this.imageFilter = '';
       await this.fetchImageItems();
       this.$root.$emit('bv::show::modal', 'task-image-picker');
     },

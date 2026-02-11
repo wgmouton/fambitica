@@ -376,6 +376,75 @@ api.joinChallenge = {
 };
 
 /**
+ * @api {post} /api/v3/challenges/:challengeId/add-member Add a member to a challenge
+ * @apiName AddChallengeMember
+ * @apiGroup Challenge
+ * @apiParam (Path) {UUID} challengeId The challenge _id
+ * @apiParam (Body) {UUID} memberId The user _id to add
+ */
+api.addChallengeMember = {
+  method: 'POST',
+  url: '/challenges/:challengeId/add-member',
+  middlewares: [authWithHeaders()],
+  async handler (req, res) {
+    const { user } = res.locals;
+
+    req.checkParams('challengeId', res.t('challengeIdRequired')).notEmpty().isUUID();
+    req.checkBody('memberId', apiError('memberIdRequired')).notEmpty().isUUID();
+
+    const validationErrors = req.validationErrors();
+    if (validationErrors) throw validationErrors;
+
+    const challenge = await Challenge.findOne({ _id: req.params.challengeId }).exec();
+    if (!challenge) throw new NotFound(res.t('challengeNotFound'));
+
+    const group = await Group.getGroup({
+      user,
+      groupId: challenge.group,
+      fields: `${basicGroupFields} purchased managers`,
+      optionalMembership: true,
+    });
+    if (!group) throw new NotFound(res.t('challengeNotFound'));
+
+    const isChallengeLeader = challenge.leader === user._id;
+    const isAdmin = user.hasPermission('challengeAdmin');
+    const isPartyParentOrLeader = group.type === 'party'
+      && (group.leader === user._id || Boolean(group.managers && group.managers[user._id]));
+    if (!isAdmin && !isChallengeLeader && !isPartyParentOrLeader) {
+      throw new NotAuthorized(res.t('onlyChalLeaderEditTasks'));
+    }
+
+    const { memberId } = req.body;
+    const member = await User.findById(memberId).exec();
+    if (!member) throw new NotFound(res.t('userNotFound'));
+    if (!group.isMember(member)) throw new NotAuthorized(res.t('userMustBeMember'));
+
+    const addedSuccessfully = await challenge.addToUser(member);
+    if (!addedSuccessfully) throw new NotAuthorized(res.t('userAlreadyInChallenge'));
+
+    challenge.memberCount += 1;
+    addUserJoinChallengeNotification(member);
+
+    await Promise.all([
+      challenge.syncTasksToUser(member),
+      challenge.save(),
+    ]);
+
+    const response = challenge.toJSON();
+    response.group = getChallengeGroupResponse(group);
+    const chalLeader = await User.findById(response.leader).select(nameFields).exec();
+    response.leader = chalLeader ? chalLeader.toJSON({ minimize: true }) : null;
+
+    const memberResponse = await User.findById(memberId).select(nameFields).exec();
+
+    res.respond(200, {
+      challenge: response,
+      member: memberResponse ? memberResponse.toJSON({ minimize: true }) : null,
+    });
+  },
+};
+
+/**
  * @api {post} /api/v3/challenges/:challengeId/leave Leave a challenge
  * @apiName LeaveChallenge
  * @apiGroup Challenge

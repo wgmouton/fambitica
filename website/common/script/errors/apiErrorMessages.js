@@ -42,12 +42,14 @@ export default {
   invalidTaskIdentifier: 'A task is identified by its UUID or alias.',
   invalidTaskScorings: 'This API route expects a body in the form of [{id, direction}].',
   summaryLengthExceedsMax: 'Summary length is too high.',
+  memberIdRequired: '"memberId" is required.',
   missingFilename: 'Missing "filename".',
   missingContentType: 'Missing "contentType".',
   missingSize: 'Missing "size".',
   fileSizeTooLarge: 'File size is too large.',
   invalidContentType: 'Invalid file content type.',
   errorCreatingUploadUrl: 'Unable to create an upload URL.',
+  personalRewardsDisabled: 'Personal rewards are disabled. Create rewards in a party or challenge instead.',
 
   socialFlowUserNotFound: 'User not found, but social auth OK with email:',
 };

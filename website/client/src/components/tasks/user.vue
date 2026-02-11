@@ -190,7 +190,7 @@
             class="dropdown"
           >
             <div
-              v-for="type in columns"
+              v-for="type in createTaskTypes"
               :key="type"
               class="dropdown-item d-flex px-2 py-1"
               @click="createTask(type)"
@@ -449,6 +449,9 @@ export default {
   },
   computed: {
     ...mapState({ user: 'user.data' }),
+    createTaskTypes () {
+      return this.columns.filter(type => type !== 'reward');
+    },
     tagsByType () {
       const userTags = this.user.tags;
       const tagsByType = {
